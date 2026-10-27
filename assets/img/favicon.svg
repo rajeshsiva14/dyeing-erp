@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="dyeBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="dyeTeal" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <!-- Background Rounded Canvas -->
+  <rect width="64" height="64" rx="14" fill="#FFFFFF"/>
+  <rect width="64" height="64" rx="14" fill="none" stroke="#E2E8F0" stroke-width="1.5"/>
+  
+  <!-- Modern Dual-Petal Dyeing Droplet -->
+  <g filter="url(#shadow)" transform="translate(1, 1)">
+    <!-- Right / Main Blue Petal -->
+    <path d="M31 10 C31 10, 47 26, 47 38 C47 47 40 54 31 54 C29.5 54 28 53.8 26.6 53.4 C30 49 32 43 32 37 C32 27 26 19 31 10 Z" fill="url(#dyeBlue)"/>
+    <!-- Left / Cyan-Teal Petal -->
+    <path d="M31 10 C26 19, 20 27, 20 37 C20 45 25 51.5 31 53.5 C20 53.5 15 45 15 37 C15 26, 31 10, 31 10 Z" fill="url(#dyeTeal)"/>
+    <!-- Highlight Reflection -->
+    <ellipse cx="23" cy="30" rx="2" ry="5" transform="rotate(-25 23 30)" fill="#FFFFFF" opacity="0.45"/>
+  </g>
+</svg>

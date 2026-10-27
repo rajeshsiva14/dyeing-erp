@@ -1,0 +1,25 @@
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    DirectorySlash On
+
+    RewriteCond %{REQUEST_URI}::$1 ^(.*?/)(.*)::\2$
+    RewriteRule ^(.*)$ - [E=APP_BASE:%1]
+
+    # Serve static files directly
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^(assets|uploads)/.+\.(css|js|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot|pdf)$ - [L,NC]
+
+    # Send all other requests to index.php
+    RewriteCond %{REQUEST_URI} !/index\.php$
+    RewriteRule ^ %{ENV:APP_BASE}index.php [L,QSA]
+</IfModule>
+
+Options -Indexes
+
+<FilesMatch "(\.env|\.sql|\.key|\.log|\.lock|\.cache)$">
+    Require all denied
+</FilesMatch>
