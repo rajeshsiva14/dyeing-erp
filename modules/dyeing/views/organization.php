@@ -20,6 +20,7 @@ $msgType = 'success';
 
 // Handle Form Submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    CSRF::validateToken($_POST['csrf_token'] ?? '');
     $action = $_POST['form_action'] ?? '';
 
     // 1. Update Company Profile
@@ -346,6 +347,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                         <div class="d-inline-flex align-items-center gap-1">
                           <?php if (!$isCurrentActive): ?>
                             <form method="POST" action="" class="d-inline">
+                              <?= CSRF::getField() ?>
                               <input type="hidden" name="form_action" value="set_active_branch">
                               <input type="hidden" name="branch_id" value="<?= $b['id'] ?>">
                               <button type="submit" class="btn btn-xs btn-outline-primary py-1 px-2" style="font-size: 0.75rem;" title="Switch to this Unit">
@@ -372,6 +374,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                           </button>
 
                           <form method="POST" action="" class="d-inline" onsubmit="return confirm('Toggle status of this factory unit?');">
+                            <?= CSRF::getField() ?>
                             <input type="hidden" name="form_action" value="toggle_branch_status">
                             <input type="hidden" name="branch_id" value="<?= $b['id'] ?>">
                             <input type="hidden" name="current_status" value="<?= $b['status'] ?>">
@@ -396,6 +399,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
       <div class="tab-pane fade" id="company-pane" role="tabpanel">
         <div class="cz-card p-4">
           <form method="POST" action="">
+            <?= CSRF::getField() ?>
             <input type="hidden" name="form_action" value="update_company">
             <input type="hidden" name="company_id" value="<?= $company['id'] ?>">
 
@@ -504,6 +508,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg">
       <form method="POST" action="">
+        <?= CSRF::getField() ?>
         <input type="hidden" name="form_action" value="add_branch">
         <input type="hidden" name="company_id" value="<?= $company['id'] ?>">
 
@@ -585,6 +590,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg">
       <form method="POST" action="">
+        <?= CSRF::getField() ?>
         <input type="hidden" name="form_action" value="update_branch">
         <input type="hidden" name="branch_id" id="edit_branch_id">
 

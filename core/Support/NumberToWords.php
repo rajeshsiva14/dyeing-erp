@@ -34,6 +34,10 @@ class NumberToWords {
         return trim($result) . ' Only';
     }
 
+    public static function convert(float $amount, string $currency = 'INR'): string {
+        return self::inWords($amount, $currency);
+    }
+
     private static function convertIndianWhole(int $number): string {
         if ($number === 0) {
             return '';

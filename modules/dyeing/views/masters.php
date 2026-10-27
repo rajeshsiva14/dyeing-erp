@@ -370,6 +370,63 @@ $chemicals = Database::fetchAll("SELECT * FROM products WHERE category = 'dyes_c
           <button type="submit" class="btn btn-dark btn-sm"><i class="bi bi-check-lg me-1"></i> Save Shade</button>
         </div>
       </form>
+<!-- New Defect Modal -->
+<div class="modal fade" id="newDefectModal" tabindex="-1" aria-labelledby="newDefectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <form method="POST" action="">
+        <input type="hidden" name="action" value="add_defect">
+        <input type="hidden" name="csrf_token" value="<?= CSRF::getToken() ?>">
+
+        <div class="modal-header bg-dark text-white p-3">
+          <h5 class="modal-title fs-6 fw-bold" id="newDefectModalLabel"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Add Fabric / Dyeing Defect</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4 small">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Defect Code *</label>
+              <input type="text" name="defect_code" class="form-control form-control-sm font-monospace" placeholder="e.g. DEF-DY-09" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Defect Name *</label>
+              <input type="text" name="defect_name" class="form-control form-control-sm" placeholder="e.g. Uneven Dyeing / Patchiness" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Category *</label>
+              <select name="category" class="form-select form-select-sm" required>
+                <option value="fabric_construction">Fabric Construction / Grey Flaw</option>
+                <option value="dyeing_process" selected>Dyeing Process Flaw</option>
+                <option value="finishing">Finishing / Stenter Flaw</option>
+                <option value="stain_contamination">Stain / Oil Contamination</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Severity *</label>
+              <select name="severity" class="form-select form-select-sm" required>
+                <option value="minor">Minor</option>
+                <option value="major" selected>Major</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label fw-bold">ASTM D5430 4-Point Penalty Points *</label>
+              <select name="four_point_penalty" class="form-select form-select-sm" required>
+                <option value="1">1 Point (Defect up to 3 inches)</option>
+                <option value="2" selected>2 Points (Defect 3 to 6 inches)</option>
+                <option value="3">3 Points (Defect 6 to 9 inches)</option>
+                <option value="4">4 Points (Defect over 9 inches or Hole/Cut)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer border-top p-3 bg-light">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-dark btn-sm"><i class="bi bi-check-lg me-1"></i> Save Defect Standard</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

@@ -13,6 +13,7 @@
 
 use Core\Support\Url;
 use Core\Security\SessionManager;
+use Core\Security\CSRF;
 
 SessionManager::start();
 
@@ -23,12 +24,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            || (isset($_POST['ajax']) && $_POST['ajax'] === '1') 
            || str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 
-    $username = trim($_POST['username'] ?? '');
-    $password = trim($_POST['password'] ?? '');
+    $csrfToken = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (!CSRF::validate($csrfToken)) {
+        $error = 'Security check failed: Invalid or missing CSRF security token. Please refresh the page.';
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=UTF-8');
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => $error
+            ]);
+            exit;
+        }
+    } else {
+        $username = trim($_POST['username'] ?? '');
+        $password = trim($_POST['password'] ?? '');
 
-    $user = \Core\Database\Database::fetch("SELECT * FROM users WHERE username = ? OR email = ?", [$username, $username]);
-    if ($user && $user['status'] === 'active') {
-        if (password_verify($password, $user['password_hash'])) {
+        $user = \Core\Database\Database::fetch("SELECT * FROM users WHERE username = ? OR email = ?", [$username, $username]);
+        if ($user && $user['status'] === 'active') {
+            if (password_verify($password, $user['password_hash'])) {
             SessionManager::setUser([
                 'id'          => $user['id'],
                 'company_id'  => $user['company_id'],
@@ -62,15 +76,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $error = 'Invalid username or password. Please verify your credentials.';
-    if ($isAjax) {
-        header('Content-Type: application/json; charset=UTF-8');
-        http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => $error
-        ]);
-        exit;
+        $error = 'Invalid username or password. Please verify your credentials.';
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=UTF-8');
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'message' => $error
+            ]);
+            exit;
+        }
     }
 }
 
@@ -1255,6 +1270,7 @@ $baseUrl = Url::base();
 
       <!-- Login Form: Action is empty so it always posts to current URL with NO 301 redirects -->
       <form method="POST" action="" id="loginForm">
+        <?= CSRF::getField() ?>
         
         <!-- Username / Email -->
         <div class="form-group-custom">
@@ -1437,9 +1453,11 @@ $baseUrl = Url::base();
     submitBtn.style.pointerEvents = 'none';
     submitBtn.style.opacity = '0.9';
 
+    const csrfVal = document.querySelector('input[name="csrf_token"]')?.value || '<?= CSRF::getToken() ?>';
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
+    formData.append('csrf_token', csrfVal);
     formData.append('ajax', '1');
 
     // Use current URL with trailing slash guaranteed
@@ -1450,6 +1468,7 @@ $baseUrl = Url::base();
       body: formData,
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-Token': csrfVal,
         'Accept': 'application/json'
       }
     })
@@ -1544,13 +1563,15 @@ $baseUrl = Url::base();
     });
   }
 
-  // Quick Access Department Head Click Handler
+  // Quick Access Department Head Click Handler - fills username only, NEVER prefills password or auto-submits
   function quickFill(username) {
     const userInput = document.getElementById('usernameInput');
     const passInput = document.getElementById('passwordInput');
     if (userInput) userInput.value = username;
-    if (passInput) passInput.value = 'password123';
-    executeLogin(username, 'password123');
+    if (passInput) {
+      passInput.value = '';
+      passInput.focus();
+    }
   }
 </script>
 

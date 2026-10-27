@@ -57,4 +57,67 @@ class CostingService {
         }
         return round(($totalPenaltyPoints * 100) / $sqYards, 2);
     }
+
+    /**
+     * Calculate Bath Volume (L) = Fabric Weight (kg) × Liquor Ratio
+     */
+    public static function calculateBathVolume(float $fabricWeightKg, float $liquorRatio): float {
+        if ($fabricWeightKg <= 0 || $liquorRatio <= 0) {
+            return 0.0;
+        }
+        return round($fabricWeightKg * $liquorRatio, 2);
+    }
+
+    /**
+     * Calculate Dyestuff quantity using OWF (%)
+     * Dyestuff (kg) = Fabric Weight (kg) × OWF (%) / 100
+     */
+    public static function calculateDyestuffOwf(float $fabricWeightKg, float $owfPct): float {
+        if ($fabricWeightKg <= 0 || $owfPct <= 0) {
+            return 0.0;
+        }
+        return round(($fabricWeightKg * $owfPct) / 100, 4);
+    }
+
+    /**
+     * Calculate Auxiliary chemical quantity
+     * Auxiliary (kg) = Bath Volume (L) × Dosage (g/L) / 1000
+     */
+    public static function calculateAuxiliaryQuantity(float $bathVolumeLiters, float $dosageGramsPerLiter): float {
+        if ($bathVolumeLiters <= 0 || $dosageGramsPerLiter <= 0) {
+            return 0.0;
+        }
+        return round(($bathVolumeLiters * $dosageGramsPerLiter) / 1000, 4);
+    }
+
+    /**
+     * Calculate Net Fabric Weight = Gross Weight - Tare Weight
+     */
+    public static function calculateNetFabricWeight(float $grossWeight, float $tareWeight): float {
+        $net = $grossWeight - $tareWeight;
+        return max(0.0, round($net, 2));
+    }
+
+    /**
+     * Complete Batch Cost Breakdown
+     */
+    public static function calculateBatchCost(
+        float $fabricCost,
+        float $chemicalCost,
+        float $machineCost,
+        float $labourCost,
+        float $utilityCost,
+        float $overheadCost = 0.0
+    ): array {
+        $totalCost = round($fabricCost + $chemicalCost + $machineCost + $labourCost + $utilityCost + $overheadCost, 2);
+        return [
+            'fabric_cost'   => round($fabricCost, 2),
+            'chemical_cost' => round($chemicalCost, 2),
+            'machine_cost'  => round($machineCost, 2),
+            'labour_cost'   => round($labourCost, 2),
+            'utility_cost'  => round($utilityCost, 2),
+            'overhead_cost' => round($overheadCost, 2),
+            'total_cost'    => $totalCost
+        ];
+    }
 }

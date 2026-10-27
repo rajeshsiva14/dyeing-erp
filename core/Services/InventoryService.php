@@ -36,8 +36,21 @@ class InventoryService {
             'posted_by'          => $data['posted_by'] ?? null,
         ]);
 
-        // Update product current_stock if company owned
+        // Update product current_stock if company owned with row-level lock and negative stock guard
         if (($data['owner_type'] ?? 'company') === 'company') {
+            $stmt = Database::getConnection()->prepare("SELECT current_stock FROM products WHERE id = ? FOR UPDATE");
+            $stmt->execute([$data['product_id']]);
+            $currentStock = (float)$stmt->fetchColumn();
+
+            if ($data['quantity_base_uom'] < 0 && ($currentStock + $data['quantity_base_uom']) < -0.0001 && empty($data['allow_negative'])) {
+                throw new Exception(sprintf(
+                    "Insufficient inventory balance for Product #%d. Available stock: %.2f, Requested issue: %.2f.",
+                    $data['product_id'],
+                    $currentStock,
+                    abs($data['quantity_base_uom'])
+                ));
+            }
+
             Database::getConnection()->prepare(
                 "UPDATE products SET current_stock = current_stock + :qty WHERE id = :id"
             )->execute([

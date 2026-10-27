@@ -19,10 +19,30 @@ class CSRF {
     }
 
     /**
-     * Validate token alias used across dyeing forms
+     * Validate token alias used across dyeing forms - strictly rejects invalid requests
      */
     public static function validateToken(?string $token): bool {
-        return self::validate($token);
+        if (!self::validate($token)) {
+            http_response_code(403);
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) || str_starts_with($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode([
+                    'success' => false,
+                    'error' => ['code' => 'INVALID_CSRF_TOKEN', 'message' => 'CSRF security token missing or invalid. Please refresh the page.']
+                ]);
+                exit;
+            }
+            die('Security Violation (403): Invalid or missing CSRF token. Request rejected.');
+        }
+        return true;
+    }
+
+    /**
+     * Strict CSRF enforcement helper
+     */
+    public static function enforce(?string $token = null): void {
+        $token = $token ?? $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+        self::validateToken($token);
     }
 
     /**

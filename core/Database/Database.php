@@ -36,6 +36,18 @@ class Database {
         return false;
     }
 
+    public static function execute(string $sql, array $params = []): int {
+        $stmt = self::getConnection()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->rowCount();
+    }
+
+    public static function query(string $sql, array $params = []): \PDOStatement {
+        $stmt = self::getConnection()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
     public static function fetchAll(string $sql, array $params = []): array {
         $stmt = self::getConnection()->prepare($sql);
         $stmt->execute($params);
@@ -47,6 +59,12 @@ class Database {
         $stmt->execute($params);
         $row = $stmt->fetch();
         return $row ?: null;
+    }
+
+    public static function fetchColumn(string $sql, array $params = [], int $column = 0): mixed {
+        $stmt = self::getConnection()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn($column);
     }
 
     public static function insert(string $table, array $data): int {

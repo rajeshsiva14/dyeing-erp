@@ -219,6 +219,17 @@ $baseUrl = Url::base();
     link.click();
     document.body.removeChild(link);
   };
+
+  // Global Table Row Click-to-Update Navigation
+  document.addEventListener('click', function(e) {
+    const row = e.target.closest('.cz-clickable-row');
+    if (!row || !row.dataset.href) return;
+    // Ignore clicks on buttons, links, inputs, selects, or elements marked with event.stopPropagation
+    if (e.target.closest('a, button, input, select, textarea, label, .btn, .btn-group, .dropdown-menu, .modal')) {
+      return;
+    }
+    window.location.href = row.dataset.href;
+  });
 </script>
 </body>
 </html>

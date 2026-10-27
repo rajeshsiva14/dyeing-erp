@@ -63,7 +63,7 @@
 }
 
 /* -------------------------------------------------------------
- * Base Reset & Typography
+ * Base Reset & Modern SaaS Typography
  * ------------------------------------------------------------- */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -71,45 +71,48 @@
 
 body {
   background-color: var(--cz-bg-main) !important;
-  color: var(--cz-text-primary) !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  color: #1E293B !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-size: 14px !important;
   line-height: 1.5 !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
 }
 
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  color: #0F172A !important;
+  letter-spacing: -0.025em !important;
+}
+
 h1, .h1 {
-  font-size: 1.5rem !important; /* 24-28px */
-  font-weight: 600 !important;
-  color: var(--cz-text-primary) !important;
-  letter-spacing: -0.02em !important;
+  font-size: 1.55rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.25 !important;
 }
 
 h2, .h2 {
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-  color: var(--cz-text-primary) !important;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
 }
 
 h3, .h3, h4, .h4 {
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-  color: var(--cz-text-primary) !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
 }
 
 h5, .h5, h6, .h6 {
-  font-size: 1rem !important; /* 15-17px */
+  font-size: 1rem !important;
   font-weight: 600 !important;
-  color: var(--cz-text-primary) !important;
 }
 
 .text-dark {
-  color: var(--cz-text-primary) !important;
+  color: #0F172A !important;
 }
 
 .text-secondary, .text-muted {
-  color: var(--cz-text-secondary) !important;
+  color: #64748B !important;
 }
 
 /* Breadcrumbs */
@@ -119,26 +122,64 @@ h5, .h5, h6, .h6 {
 
 .breadcrumb-item {
   font-size: 0.78rem !important;
-  color: var(--cz-text-secondary) !important;
+  color: #64748B !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 500 !important;
 }
 
 .breadcrumb-item a {
-  color: var(--cz-text-secondary) !important;
+  color: #64748B !important;
   text-decoration: none !important;
   transition: color 0.15s ease !important;
 }
 
 .breadcrumb-item a:hover {
-  color: var(--cz-primary) !important;
+  color: #2563EB !important;
 }
 
 .breadcrumb-item.active {
-  color: var(--cz-text-primary) !important;
-  font-weight: 500 !important;
+  color: #0F172A !important;
+  font-weight: 600 !important;
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
   color: #CBD5E1 !important;
+}
+
+/* Monospace font for data numbers & codes (no unwanted borders or backgrounds) */
+.font-monospace {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-feature-settings: "tnum" 1, "lnum" 1 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Explicit table-cell protection so numbers in tables never wrap or float */
+.table td, .table th, td.font-monospace, th.font-monospace {
+  display: table-cell !important;
+}
+
+td.font-monospace {
+  background: transparent !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+/* Specific Code Pills (Only applied to actual <code> elements or .code-pill) */
+code, .code-pill {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  background: #F1F5F9 !important;
+  color: #1E293B !important;
+  border: 1px solid #CBD5E1 !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  font-size: 0.81rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  display: inline-block !important;
 }
 
 /* -------------------------------------------------------------
@@ -633,8 +674,11 @@ body.sidebar-collapsed .cz-sidebar-footer {
 /* -------------------------------------------------------------
  * Main Workspace Layout & Content
  * ------------------------------------------------------------- */
+/* -------------------------------------------------------------
+ * Main Workspace Layout & Content
+ * ------------------------------------------------------------- */
 .cz-main {
-  padding-top: calc(var(--cz-topbar-h) + 12px) !important;
+  padding-top: 86px !important;
   padding-left: var(--cz-sidebar-w) !important;
   min-height: 100vh !important;
   transition: padding-left 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -649,76 +693,81 @@ body.sidebar-collapsed .cz-main {
   width: 100% !important;
   max-width: 1680px !important;
   margin: 0 auto !important;
-  padding: 10px 24px 60px !important;
+  padding: 12px 24px 60px !important;
 }
 
 /* -------------------------------------------------------------
- * Cards & Panels (Clean White Surfaces, 8-12px radius)
+ * Cards & Panels (Clean White Surfaces, 14px radius)
  * ------------------------------------------------------------- */
 .cz-panel, .card {
-  background: var(--cz-bg-card) !important;
-  border: 1px solid var(--cz-border) !important;
-  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 14px !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
 }
 
 .cz-panel-head, .card-header {
-  padding: 13px 18px !important;
-  background: var(--cz-bg-card) !important;
-  border-bottom: 1px solid var(--cz-divider) !important;
-  border-radius: 10px 10px 0 0 !important;
-  color: var(--cz-text-primary) !important;
+  padding: 16px 22px !important;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+  border-radius: 14px 14px 0 0 !important;
+  color: #0F172A !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 /* Stat Cards (Simple White KPI Cards, Restrained Accent) */
 .cz-stat-card {
-  background: var(--cz-bg-card) !important;
-  border: 1px solid var(--cz-border) !important;
-  border-radius: 10px !important;
-  padding: 16px 20px !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  padding: 18px 22px !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
-  transition: border-color 0.15s ease !important;
+  transition: border-color 0.15s ease, transform 0.15s ease !important;
 }
 
 .cz-stat-card:hover {
   border-color: #CBD5E1 !important;
+  transform: translateY(-1px) !important;
 }
 
 .cz-stat-val {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: 1.625rem !important; /* 26px */
-  font-weight: 700 !important;
-  color: var(--cz-text-primary) !important;
+  font-weight: 800 !important;
+  color: #0F172A !important;
   line-height: 1.15 !important;
   letter-spacing: -0.02em !important;
 }
 
 .cz-stat-lbl {
-  font-size: 0.75rem !important; /* 12px */
-  font-weight: 600 !important;
-  color: var(--cz-text-secondary) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  color: #64748B !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
-  margin-bottom: 0.35rem !important;
+  margin-bottom: 0.4rem !important;
 }
 
 /* -------------------------------------------------------------
  * Full-Page Document Forms (Project-K Standard)
  * ------------------------------------------------------------- */
 .cz-doc-head {
-  background: var(--cz-bg-card) !important;
-  border: 1px solid var(--cz-border) !important;
-  border-radius: 10px !important;
-  padding: 16px 22px !important;
-  margin-bottom: 18px !important;
+  position: static !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  padding: 18px 24px !important;
+  margin-bottom: 20px !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
 }
 
 .cz-doc-section {
-  background: var(--cz-bg-card) !important;
-  border: 1px solid var(--cz-border) !important;
-  border-radius: 10px !important;
-  padding: 20px 22px !important;
-  margin-bottom: 18px !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  padding: 22px 26px !important;
+  margin-bottom: 20px !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
 }
 
@@ -726,157 +775,189 @@ body.sidebar-collapsed .cz-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--cz-divider);
-  padding-bottom: 12px;
-  margin-bottom: 16px;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .cz-doc-section-title {
-  font-size: 1rem !important; /* 16px */
-  font-weight: 600 !important;
-  color: var(--cz-text-primary) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #0F172A !important;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: -0.01em !important;
 }
 
 .cz-doc-section-desc {
-  font-size: 0.78rem !important;
-  color: var(--cz-text-secondary) !important;
-  margin: 0;
+  font-size: 0.82rem !important;
+  color: #64748B !important;
+  margin: 2px 0 0 !important;
 }
 
 /* -------------------------------------------------------------
- * Buttons (Blue Primary, White Subtle Secondary)
+ * Buttons (Modern SaaS Action Styling)
  * ------------------------------------------------------------- */
+.btn {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
+  font-weight: 600 !important;
+  border-radius: 9px !important;
+  letter-spacing: -0.01em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
 .btn-primary, .btn-dark {
-  background-color: var(--cz-primary) !important;
-  border-color: var(--cz-primary) !important;
+  background: linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%) !important;
+  border: 1px solid #1D4ED8 !important;
   color: #FFFFFF !important;
-  font-weight: 500 !important;
-  border-radius: 6px !important;
-  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 3px 0 rgba(37, 99, 235, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.2) !important;
 }
 
 .btn-primary:hover, .btn-primary:focus,
 .btn-dark:hover, .btn-dark:focus {
-  background-color: var(--cz-primary-hover) !important;
-  border-color: var(--cz-primary-hover) !important;
+  background: linear-gradient(180deg, #1D4ED8 0%, #1E40AF 100%) !important;
+  border-color: #1E40AF !important;
   color: #FFFFFF !important;
-  box-shadow: 0 1px 3px rgba(50, 103, 214, 0.25) !important;
+  box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.35) !important;
+  transform: translateY(-1px) !important;
 }
 
 .btn-outline-dark, .btn-outline-secondary, .btn-secondary, .btn-light {
   background-color: #FFFFFF !important;
-  border: 1px solid var(--cz-border) !important;
-  color: var(--cz-text-primary) !important;
-  font-weight: 500 !important;
-  border-radius: 6px !important;
-  transition: all 0.15s ease !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #1E293B !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
 .btn-outline-dark:hover, .btn-outline-secondary:hover, .btn-secondary:hover, .btn-light:hover {
-  background-color: var(--cz-bg-main) !important;
-  border-color: #CBD5E1 !important;
-  color: var(--cz-text-primary) !important;
+  background-color: #F8FAFC !important;
+  border-color: #94A3B8 !important;
+  color: #0F172A !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
 }
 
 .btn-outline-primary {
   background-color: #FFFFFF !important;
-  border-color: var(--cz-primary) !important;
-  color: var(--cz-primary) !important;
-  font-weight: 500 !important;
+  border: 1.5px solid #2563EB !important;
+  color: #2563EB !important;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08) !important;
 }
 
 .btn-outline-primary:hover {
-  background-color: var(--cz-surface-blue) !important;
-  border-color: var(--cz-primary-hover) !important;
-  color: var(--cz-primary-hover) !important;
+  background-color: #EFF6FF !important;
+  border-color: #1D4ED8 !important;
+  color: #1D4ED8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15) !important;
 }
 
 .btn-sm {
+  padding: 6px 14px !important;
+  font-size: 0.82rem !important;
+  border-radius: 8px !important;
+}
+
+/* Micro Action Buttons in Tables */
+.table td .btn, .table td .btn-group .btn {
   padding: 5px 12px !important;
-  font-size: 0.81rem !important;
+  font-size: 0.80rem !important;
+  border-radius: 7px !important;
+  font-weight: 600 !important;
 }
 
 /* -------------------------------------------------------------
- * Form Inputs & Selects (40px Height, Crisp Borders)
+ * Form Inputs & Selects (Crisp SaaS Forms)
  * ------------------------------------------------------------- */
 .form-label {
-  font-size: 0.82rem !important; /* 13-14px */
-  font-weight: 500 !important;
-  color: var(--cz-text-primary) !important;
-  margin-bottom: 5px !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
 }
 
 .form-control, .form-select {
-  height: 40px !important;
-  border: 1px solid var(--cz-border) !important;
-  border-radius: 6px !important;
-  font-size: 0.875rem !important; /* 14px */
-  color: var(--cz-text-primary) !important;
+  height: 42px !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 8px !important;
+  font-size: 0.88rem !important;
+  color: #0F172A !important;
   background-color: #FFFFFF !important;
-  padding: 8px 12px !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  padding: 8px 14px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease !important;
 }
 
 .form-control-sm, .form-select-sm {
-  height: 34px !important;
-  font-size: 0.81rem !important;
-  padding: 4px 8px !important;
+  height: 36px !important;
+  font-size: 0.82rem !important;
+  padding: 5px 10px !important;
+  border-radius: 7px !important;
 }
 
 textarea.form-control {
   height: auto !important;
-  min-height: 80px !important;
+  min-height: 84px !important;
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: var(--cz-primary) !important;
-  box-shadow: 0 0 0 3px rgba(50, 103, 214, 0.12) !important;
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16) !important;
   outline: none !important;
 }
 
 .form-control:read-only, .form-control:disabled, .form-select:disabled {
-  background-color: var(--cz-bg-main) !important;
-  color: var(--cz-text-secondary) !important;
-  border-color: var(--cz-border) !important;
+  background-color: #F8FAFC !important;
+  color: #64748B !important;
+  border-color: #E2E8F0 !important;
 }
 
 .input-group-text {
-  background-color: var(--cz-bg-main) !important;
-  border: 1px solid var(--cz-border) !important;
-  color: var(--cz-text-secondary) !important;
-  font-size: 0.81rem !important;
+  background-color: #F8FAFC !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #475569 !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
 }
 
 /* -------------------------------------------------------------
- * Data Tables (Clean, Readable, Subtle Hover)
+ * Data Tables (Clean, Readable, High-Contrast SaaS Layout)
  * ------------------------------------------------------------- */
 .table {
-  color: var(--cz-text-primary) !important;
+  color: #1E293B !important;
   margin-bottom: 0 !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
 }
 
 .table thead th {
-  background: var(--cz-bg-main) !important;
-  color: var(--cz-text-secondary) !important;
-  font-size: 0.74rem !important;
-  font-weight: 600 !important;
+  background: #F8FAFC !important;
+  color: #475569 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  border-bottom: 1px solid var(--cz-border) !important;
+  letter-spacing: 0.06em !important;
+  border-bottom: 1px solid #E2E8F0 !important;
   border-top: none !important;
-  padding: 10px 14px !important;
+  padding: 13px 18px !important;
   vertical-align: middle !important;
 }
 
 .table tbody td {
-  padding: 11px 14px !important;
+  padding: 13px 18px !important;
   vertical-align: middle !important;
-  border-bottom: 1px solid var(--cz-divider) !important;
-  font-size: 0.84rem !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+  font-size: 0.86rem !important;
   background-color: transparent !important;
 }
 
@@ -885,119 +966,149 @@ textarea.form-control {
 }
 
 /* -------------------------------------------------------------
- * Status Badges (Subtle, Accessible Color Coding)
+ * Status Badges (Refined SaaS Status Pills)
  * ------------------------------------------------------------- */
 .badge {
-  font-size: 0.72rem !important;
-  font-weight: 500 !important;
-  padding: 3px 8px !important;
-  border-radius: 4px !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
+  font-size: 0.73rem !important;
+  font-weight: 600 !important;
+  padding: 4px 11px !important;
+  border-radius: 9999px !important;
   letter-spacing: 0.02em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
 }
 
-/* Neutral / Draft */
+/* Neutral / Draft / Code */
 .badge-bw, .badge-draft, .status-draft, .badge-secondary, .bg-secondary {
   background-color: #F1F5F9 !important;
   color: #475569 !important;
-  border: 1px solid var(--cz-border) !important;
+  border: 1px solid #E2E8F0 !important;
 }
 
-/* Active / In Progress / Running */
-.badge-bw-dark, .badge-in-progress, .status-running, .status-in_production, .status-loaded, .status-dosing, .status-dyeing, .status-washing {
-  background-color: var(--cz-surface-blue) !important;
-  color: var(--cz-primary) !important;
-  border: 1px solid #C7D9FB !important;
+/* Active / Running / In Production */
+.badge-bw-dark, .badge-in-progress, .status-running, .status-in_production, .status-loaded, .status-dosing, .status-dyeing, .status-washing, .bg-primary {
+  background-color: #EFF6FF !important;
+  color: #1D4ED8 !important;
+  border: 1px solid #BFDBFE !important;
 }
 
-/* Approved / Completed / Success */
-.badge-success, .status-approved, .status-passed, .status-completed, .status-posted, .status-confirmed, .status-active {
-  background-color: var(--cz-success-bg) !important;
-  color: var(--cz-success) !important;
-  border: 1px solid #B7E8CE !important;
+/* Approved / Completed / Success / Grade A / Accepted / Available */
+.badge-success, .status-approved, .status-passed, .status-completed, .status-posted, .status-confirmed, .status-active, .bg-success {
+  background-color: #ECFDF5 !important;
+  color: #047857 !important;
+  border: 1px solid #A7F3D0 !important;
 }
 
-/* Pending / On Hold / Warning */
-.badge-warning, .status-pending, .status-planned, .status-on_hold, .status-hold {
-  background-color: var(--cz-warning-bg) !important;
-  color: var(--cz-warning) !important;
-  border: 1px solid #FCE0B5 !important;
+/* Available Machine Pill */
+.badge-available, .badge.bg-available {
+  background-color: #F0FDF4 !important;
+  color: #15803D !important;
+  border: 1px solid #BBF7D0 !important;
+}
+
+/* Pending / On Hold / Maintenance / Warning */
+.badge-warning, .status-pending, .status-planned, .status-on_hold, .status-hold, .bg-warning {
+  background-color: #FFFBEB !important;
+  color: #B45309 !important;
+  border: 1px solid #FDE68A !important;
 }
 
 /* Rejected / Failed / Error / Urgent */
-.badge-danger, .status-rejected, .status-failed, .status-cancelled, .status-breakdown, .status-urgent {
-  background-color: var(--cz-error-bg) !important;
-  color: var(--cz-error) !important;
-  border: 1px solid #F8C8CA !important;
+.badge-danger, .status-rejected, .status-failed, .status-cancelled, .status-breakdown, .status-urgent, .bg-danger {
+  background-color: #FEF2F2 !important;
+  color: #B91C1C !important;
+  border: 1px solid #FECACA !important;
+}
+
+/* Dark Machine / Vessel Code Pill */
+.badge.bg-dark {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border: 1px solid #1E293B !important;
+  border-radius: 7px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.74rem !important;
 }
 
 /* Informational */
-.badge-info, .status-info {
-  background-color: var(--cz-info-bg) !important;
-  color: var(--cz-info) !important;
-  border: 1px solid #D2E4FA !important;
+.badge-info, .status-info, .bg-info {
+  background-color: #F0F9FF !important;
+  color: #0284C7 !important;
+  border: 1px solid #BAE6FD !important;
 }
 
 /* -------------------------------------------------------------
- * Alerts & Banners
+ * Alerts & Banners (Sleek Notification Banners)
  * ------------------------------------------------------------- */
 .alert {
-  border-radius: 8px !important;
-  font-size: 0.84rem !important;
-  padding: 10px 16px !important;
+  border-radius: 12px !important;
+  font-size: 0.86rem !important;
+  padding: 14px 20px !important;
+  font-family: 'Inter', sans-serif !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid transparent !important;
 }
 
 .alert-success {
-  background-color: var(--cz-success-bg) !important;
-  border: 1px solid #B7E8CE !important;
-  color: var(--cz-success) !important;
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
 }
 
 .alert-info {
-  background-color: var(--cz-info-bg) !important;
-  border: 1px solid #D2E4FA !important;
-  color: var(--cz-info) !important;
+  background-color: #F0F9FF !important;
+  border-color: #BAE6FD !important;
+  color: #0369A1 !important;
 }
 
 .alert-warning {
-  background-color: var(--cz-warning-bg) !important;
-  border: 1px solid #FCE0B5 !important;
-  color: var(--cz-warning) !important;
+  background-color: #FFFBEB !important;
+  border-color: #FDE68A !important;
+  color: #92400E !important;
 }
 
 .alert-danger {
-  background-color: var(--cz-error-bg) !important;
-  border: 1px solid #F8C8CA !important;
-  color: var(--cz-error) !important;
+  background-color: #FEF2F2 !important;
+  border-color: #FECACA !important;
+  color: #991B1B !important;
 }
 
 /* -------------------------------------------------------------
- * Modals & Dialogs
+ * Modals & Dialogs (Clean White Surfaces, 16px radius)
  * ------------------------------------------------------------- */
 .modal-content {
-  background: var(--cz-bg-card) !important;
-  border: 1px solid var(--cz-border) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
 }
 
 .modal-header {
-  background: var(--cz-bg-main) !important;
-  border-bottom: 1px solid var(--cz-divider) !important;
-  padding: 14px 18px !important;
-  border-radius: 10px 10px 0 0 !important;
+  padding: 18px 24px !important;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+  color: #0F172A !important;
 }
 
 .modal-title {
-  font-size: 0.95rem !important;
-  font-weight: 600 !important;
-  color: var(--cz-text-primary) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+  color: #0F172A !important;
+  letter-spacing: -0.02em !important;
+}
+
+.modal-body {
+  padding: 22px 24px !important;
 }
 
 .modal-footer {
-  background: var(--cz-bg-main) !important;
-  border-top: 1px solid var(--cz-divider) !important;
-  padding: 12px 18px !important;
-  border-radius: 0 0 10px 10px !important;
+  padding: 14px 24px !important;
+  background: #F8FAFC !important;
+  border-top: 1px solid #F1F5F9 !important;
 }
 
 /* -------------------------------------------------------------
@@ -1032,11 +1143,6 @@ i[data-lucide] {
 
 .border-primary {
   border-color: var(--cz-primary) !important;
-}
-
-.font-monospace {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  font-size: 0.82rem !important;
 }
 
 /* Responsive adjustments */
@@ -1131,8 +1237,17 @@ i[data-lucide] {
   }
 
   .badge {
-    border: 1px solid #9CA3AF !important;
-    color: #000000 !important;
-    background: transparent !important;
-  }
 }
+
+/* Clickable table rows that navigate to dedicated update/edit views */
+.cz-clickable-row {
+  cursor: pointer !important;
+  transition: background-color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+.cz-clickable-row:hover {
+  background-color: #F1F5F9 !important;
+}
+.cz-clickable-row:active {
+  background-color: #E2E8F0 !important;
+}
+

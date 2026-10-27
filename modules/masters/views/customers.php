@@ -7,17 +7,93 @@
 use Core\Database\Database;
 use Core\Support\Url;
 use Core\Support\NumberToWords;
+use Core\Security\SessionManager;
+use Core\Security\CSRF;
+
+SessionManager::start();
+$currentUser = SessionManager::getUser();
+$companyId = (int)($currentUser['company_id'] ?? 1);
 
 $pageTitle = 'Customer Master Directory';
 $activeModule = 'masters';
 
+$msg = '';
+$msgType = 'success';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    CSRF::validateToken($_POST['csrf_token'] ?? '');
+
+    $code = trim($_POST['code'] ?? '');
+    $name = trim($_POST['name'] ?? '');
+    $category = trim($_POST['category'] ?? 'domestic');
+    $gstin = strtoupper(trim($_POST['gstin'] ?? ''));
+    $pan = strtoupper(trim($_POST['pan'] ?? ''));
+    $contactPerson = trim($_POST['contact_person'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $billingAddress = trim($_POST['billing_address'] ?? '');
+    $shippingAddress = trim($_POST['shipping_address'] ?? $billingAddress);
+    $city = trim($_POST['city'] ?? '');
+    $state = trim($_POST['state'] ?? 'Tamil Nadu');
+    $pincode = trim($_POST['pincode'] ?? '');
+    $creditLimit = (float)($_POST['credit_limit'] ?? 0);
+    $paymentTerms = trim($_POST['payment_terms'] ?? 'Net 30');
+
+    if (empty($code) || empty($name) || empty($billingAddress) || empty($city)) {
+        $msg = 'Please fill all mandatory fields (Code, Name, Billing Address, City).';
+        $msgType = 'danger';
+    } else {
+        try {
+            Database::insert('customers', [
+                'company_id'       => $companyId,
+                'code'             => $code,
+                'name'             => $name,
+                'category'         => in_array($category, ['export', 'domestic', 'jobwork'], true) ? $category : 'domestic',
+                'gstin'            => $gstin ?: null,
+                'pan'              => $pan ?: null,
+                'contact_person'   => $contactPerson ?: null,
+                'phone'            => $phone ?: null,
+                'email'            => $email ?: null,
+                'billing_address'  => $billingAddress,
+                'shipping_address' => $shippingAddress ?: $billingAddress,
+                'city'             => $city,
+                'state'            => $state,
+                'state_code'       => '33',
+                'pincode'          => $pincode,
+                'currency'         => 'INR',
+                'credit_limit'     => $creditLimit,
+                'credit_days'      => 30,
+                'current_balance'  => 0.00,
+                'payment_terms'    => $paymentTerms,
+                'status'           => 'active',
+                'created_at'       => date('Y-m-d H:i:s')
+            ]);
+            $msg = "Customer '{$name}' created successfully.";
+            $msgType = 'success';
+        } catch (\Exception $e) {
+            $msg = 'Failed to create customer: ' . $e->getMessage();
+            $msgType = 'danger';
+        }
+    }
+}
+
 require_once dirname(__DIR__, 3) . '/includes/header.php';
 require_once dirname(__DIR__, 3) . '/includes/sidebar.php';
 
-$customers = Database::fetchAll("SELECT * FROM customers ORDER BY name ASC");
+$customers = Database::fetchAll("SELECT * FROM customers WHERE company_id = ? ORDER BY name ASC", [$companyId]);
+if (empty($customers)) {
+    $customers = Database::fetchAll("SELECT * FROM customers ORDER BY name ASC");
+}
 ?>
 <main class="cz-main">
   <div class="cz-content p-4">
+
+    <?php if (!empty($msg)): ?>
+      <div class="alert alert-<?= $msgType ?> alert-dismissible fade show" role="alert">
+        <?= htmlspecialchars($msg) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <?php endif; ?>
 
     <!-- Header -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
@@ -100,20 +176,21 @@ $customers = Database::fetchAll("SELECT * FROM customers ORDER BY name ASC");
         <h5 class="modal-title fs-6 fw-bold" id="newCustomerModalLabel"><i class="bi bi-person-plus me-2"></i>Add Customer Account</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="customerForm" onsubmit="submitCustomer(event)">
+      <form id="customerForm" method="POST" action="">
+        <?= CSRF::getField() ?>
         <div class="modal-body p-4">
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label small fw-bold">Customer Code <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="cust_code" placeholder="e.g. CUST-004" required>
+              <input type="text" class="form-control" name="code" id="cust_code" placeholder="e.g. CUST-004" required>
             </div>
             <div class="col-md-8">
               <label class="form-label small fw-bold">Company / Customer Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="cust_name" placeholder="e.g. Tirupur Export Knits" required>
+              <input type="text" class="form-control" name="name" id="cust_name" placeholder="e.g. Tirupur Export Knits" required>
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">Category <span class="text-danger">*</span></label>
-              <select class="form-select" id="cust_category">
+              <select class="form-select" name="category" id="cust_category">
                 <option value="domestic">Domestic Sale (Tamil Nadu)</option>
                 <option value="export">Direct Export</option>
                 <option value="jobwork">Job-Work Client</option>
@@ -121,43 +198,43 @@ $customers = Database::fetchAll("SELECT * FROM customers ORDER BY name ASC");
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">GSTIN (15 Digits)</label>
-              <input type="text" class="form-control" id="cust_gstin" placeholder="33AAAAA0000A1Z5">
+              <input type="text" class="form-control" name="gstin" id="cust_gstin" placeholder="33AAAAA0000A1Z5">
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">PAN</label>
-              <input type="text" class="form-control" id="cust_pan" placeholder="AAAAA0000A">
+              <input type="text" class="form-control" name="pan" id="cust_pan" placeholder="AAAAA0000A">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Contact Person</label>
-              <input type="text" class="form-control" id="cust_contact" placeholder="Manager Name">
+              <input type="text" class="form-control" name="contact_person" id="cust_contact" placeholder="Manager Name">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Phone Number</label>
-              <input type="text" class="form-control" id="cust_phone" placeholder="+91 98422 00000">
+              <input type="text" class="form-control" name="phone" id="cust_phone" placeholder="+91 98422 00000">
             </div>
             <div class="col-12">
               <label class="form-label small fw-bold">Billing Address <span class="text-danger">*</span></label>
-              <textarea class="form-control" id="cust_address" rows="2" placeholder="Street, Industrial Area..." required></textarea>
+              <textarea class="form-control" name="billing_address" id="cust_address" rows="2" placeholder="Street, Industrial Area..." required></textarea>
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">City <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="cust_city" value="Tirupur" required>
+              <input type="text" class="form-control" name="city" id="cust_city" value="Tirupur" required>
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">State <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="cust_state" value="Tamil Nadu" required>
+              <input type="text" class="form-control" name="state" id="cust_state" value="Tamil Nadu" required>
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">Pincode <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="cust_pincode" value="641602" required>
+              <input type="text" class="form-control" name="pincode" id="cust_pincode" value="641602" required>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Credit Limit (₹)</label>
-              <input type="number" step="1000" class="form-control" id="cust_credit_limit" value="1000000">
+              <input type="number" step="1000" class="form-control" name="credit_limit" id="cust_credit_limit" value="1000000">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Payment Terms</label>
-              <input type="text" class="form-control" id="cust_terms" value="30 Days PDC">
+              <input type="text" class="form-control" name="payment_terms" id="cust_terms" value="30 Days PDC">
             </div>
           </div>
         </div>
@@ -169,13 +246,5 @@ $customers = Database::fetchAll("SELECT * FROM customers ORDER BY name ASC");
     </div>
   </div>
 </div>
-
-<script>
-  function submitCustomer(e) {
-    e.preventDefault();
-    window.showToast('Customer Created', 'New customer account added to master database.', true);
-    setTimeout(() => location.reload(), 600);
-  }
-</script>
 <?php
 require_once dirname(__DIR__, 3) . '/includes/footer.php';

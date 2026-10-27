@@ -6,6 +6,8 @@
 
 declare(strict_types=1);
 
+defined('BASE_PATH') || define('BASE_PATH', __DIR__);
+
 // PSR-4 Autoloader for Core namespace
 spl_autoload_register(function (string $class) {
     if (str_starts_with($class, 'Core\\')) {

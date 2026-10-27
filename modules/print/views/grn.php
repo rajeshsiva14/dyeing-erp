@@ -123,9 +123,10 @@ $company = Database::fetch("SELECT * FROM companies WHERE id = 1");
       <?php 
         $totChallan = 0; $totAccepted = 0; $totRejected = 0;
         foreach ($items as $idx => $it): 
-          $totChallan += $it['challan_qty'];
-          $totAccepted += $it['accepted_qty'];
-          $totRejected += $it['rejected_qty'];
+          $qtyReceived = (float)($it['received_qty'] ?? $it['challan_qty'] ?? 0);
+          $totChallan += $qtyReceived;
+          $totAccepted += (float)($it['accepted_qty'] ?? 0);
+          $totRejected += (float)($it['rejected_qty'] ?? 0);
       ?>
         <tr>
           <td class="text-center"><?= $idx + 1 ?></td>
@@ -134,7 +135,7 @@ $company = Database::fetch("SELECT * FROM companies WHERE id = 1");
             <div class="text-muted font-monospace" style="font-size: 0.75rem;">SKU: <?= htmlspecialchars($it['sku']) ?></div>
           </td>
           <td><?= htmlspecialchars($it['supplier_lot_no'] ?? $it['internal_lot_no'] ?? '-') ?></td>
-          <td class="text-end"><?= number_format($it['challan_qty'], 2) ?> <?= $it['uom_code'] ?></td>
+          <td class="text-end"><?= number_format($qtyReceived, 2) ?> <?= $it['uom_code'] ?></td>
           <td class="text-end fw-bold text-success"><?= number_format($it['accepted_qty'], 2) ?> <?= $it['uom_code'] ?></td>
           <td class="text-end text-danger"><?= number_format($it['rejected_qty'], 2) ?> <?= $it['uom_code'] ?></td>
         </tr>
