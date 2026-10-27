@@ -35,7 +35,13 @@ $parameters = Database::fetchAll("SELECT * FROM dye_batch_parameters ORDER BY re
         <p class="text-secondary small mb-0">High-temperature Soft Flow dyeing vessels, recipe execution, and real-time process parameter logging.</p>
       </div>
       <div class="d-flex gap-2">
-        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#newBatchModal">
+        <button type="button" onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-printer me-1"></i> Print Register
+        </button>
+        <button type="button" onclick="exportTableToCSV('batchesTable', 'dye_batches_register.csv')" class="btn btn-outline-success btn-sm">
+          <i class="bi bi-file-earmark-excel me-1"></i> Export Excel/CSV
+        </button>
+        <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#newBatchModal">
           <i class="bi bi-plus-lg me-1"></i> Load New Batch
         </button>
       </div>
@@ -83,7 +89,7 @@ $parameters = Database::fetchAll("SELECT * FROM dye_batch_parameters ORDER BY re
         <span class="small text-secondary"><?= count($batches) ?> Batches Tracked</span>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table id="batchesTable" class="table table-hover align-middle mb-0">
           <thead class="table-light small">
             <tr>
               <th>Batch Number</th>

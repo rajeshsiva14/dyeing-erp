@@ -43,11 +43,11 @@ ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 -- Password is 'password123' (bcrypt hash)
 INSERT INTO users (id, company_id, branch_id, username, full_name, email, password_hash, role, role_id, department_id, designation, phone, status) VALUES
-(1, 1, 1, 'admin', 'M. Senthilkumar', 'admin@karcemtextiles.com', '$2y$12$k2C953k2L5zN70s5vC75w.P/M3E5C77L.8f1t07m7F3g5y4Z6h6QO', 'admin', 1, 1, 'Managing Director', '+91 98422 12345', 'active'),
-(2, 1, 3, 'dyeing_mgr', 'R. Ramakrishnan', 'dyeing@karcemtextiles.com', '$2y$12$k2C953k2L5zN70s5vC75w.P/M3E5C77L.8f1t07m7F3g5y4Z6h6QO', 'production', 3, 5, 'Dyeing Plant Head', '+91 98422 54321', 'active'),
-(3, 1, 3, 'qc_lead', 'K. Murugesan', 'qc@karcemtextiles.com', '$2y$12$k2C953k2L5zN70s5vC75w.P/M3E5C77L.8f1t07m7F3g5y4Z6h6QO', 'qc', 4, 6, 'Quality Assurance Manager', '+91 98422 88776', 'active'),
-(4, 1, 1, 'finance_mgr', 'S. Natarajan', 'finance@karcemtextiles.com', '$2y$12$k2C953k2L5zN70s5vC75w.P/M3E5C77L.8f1t07m7F3g5y4Z6h6QO', 'accounts', 6, 10, 'Chief Financial Officer', '+91 98422 99887', 'active'),
-(5, 1, 3, 'stores_incharge', 'P. Velusamy', 'stores@karcemtextiles.com', '$2y$12$k2C953k2L5zN70s5vC75w.P/M3E5C77L.8f1t07m7F3g5y4Z6h6QO', 'stores', 5, 9, 'Senior Stores Incharge', '+91 98422 44332', 'active')
+(1, 1, 1, 'admin', 'M. Senthilkumar', 'admin@karcemtextiles.com', '$2y$10$.Pi9vr28S5.88NO4u5ehyeTIAAUXESleb4S00QLSXm/V0R8iItnPK', 'admin', 1, 1, 'Managing Director', '+91 98422 12345', 'active'),
+(2, 1, 3, 'dyeing_mgr', 'R. Ramakrishnan', 'dyeing@karcemtextiles.com', '$2y$10$.Pi9vr28S5.88NO4u5ehyeTIAAUXESleb4S00QLSXm/V0R8iItnPK', 'production', 3, 5, 'Dyeing Plant Head', '+91 98422 54321', 'active'),
+(3, 1, 3, 'qc_lead', 'K. Murugesan', 'qc@karcemtextiles.com', '$2y$10$.Pi9vr28S5.88NO4u5ehyeTIAAUXESleb4S00QLSXm/V0R8iItnPK', 'qc', 4, 6, 'Quality Assurance Manager', '+91 98422 88776', 'active'),
+(4, 1, 1, 'finance_mgr', 'S. Natarajan', 'finance@karcemtextiles.com', '$2y$10$.Pi9vr28S5.88NO4u5ehyeTIAAUXESleb4S00QLSXm/V0R8iItnPK', 'accounts', 6, 10, 'Chief Financial Officer', '+91 98422 99887', 'active'),
+(5, 1, 3, 'stores_incharge', 'P. Velusamy', 'stores@karcemtextiles.com', '$2y$10$.Pi9vr28S5.88NO4u5ehyeTIAAUXESleb4S00QLSXm/V0R8iItnPK', 'stores', 5, 9, 'Senior Stores Incharge', '+91 98422 44332', 'active')
 ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
 
 -- 4. UOMs

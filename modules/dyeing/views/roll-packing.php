@@ -25,23 +25,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $lengthM = (float)($_POST['length_meters'] ?? 85.0);
     $widthInches = (float)($_POST['width_inches'] ?? 48.0);
     $gsm = (int)($_POST['gsm'] ?? 160);
-    $grade = $_POST['grade'] ?? 'Grade A';
-    $packType = $_POST['packaging_type'] ?? 'Polythene Tubing + Shrink Film';
+    $grade = trim($_POST['grade'] ?? 'A');
+    $qualityGrade = str_contains($grade, 'B') ? 'B' : (str_contains($grade, 'C') ? 'C' : 'A');
+    $barcode = 'BAR-' . date('ymd') . '-' . str_pad((string)rand(100, 99999), 6, '0', STR_PAD_LEFT);
+    $warehouseId = 3; // Finished Fabric Warehouse
+    $binId = 1;
 
-    Database::insert('inventory_rolls', [
-        'company_id'          => 1,
-        'roll_number'         => $rollNo,
-        'lot_id'              => 1,
-        'product_id'          => 3, // Dyed Fabric
-        'weight_kg'           => $weightKg,
-        'length_meters'       => $lengthM,
-        'width_inches'        => $widthInches,
-        'gsm'                 => $gsm,
-        'grade'               => $grade,
-        'warehouse_bin_id'    => 1,
-        'owner_type'          => 'company',
-        'quality_status'      => 'passed',
-        'status'              => 'in_stock'
+    $rollId = Database::insert('inventory_rolls', [
+        'company_id'    => 1,
+        'lot_id'        => 1,
+        'roll_number'   => $rollNo,
+        'barcode'       => $barcode,
+        'product_id'    => 3, // Dyed Fabric
+        'weight_kg'     => $weightKg,
+        'length_meters' => $lengthM,
+        'width_inches'  => $widthInches,
+        'gsm'           => $gsm,
+        'quality_grade' => $qualityGrade,
+        'shade_group'   => $batch['shade_name'] ?? 'Standard Shade',
+        'warehouse_id'  => $warehouseId,
+        'bin_id'        => $binId,
+        'status'        => 'in_stock'
+    ]);
+
+    // Post immutable inventory movement to finished goods stock ledger
+    InventoryService::postMovement([
+        'company_id'        => 1,
+        'warehouse_id'      => $warehouseId,
+        'bin_id'            => $binId,
+        'product_id'        => 3,
+        'roll_id'           => $rollId,
+        'lot_id'            => 1,
+        'movement_type'     => 'production_receipt',
+        'quantity_base_uom' => $weightKg,
+        'unit_cost'         => 85.00,
+        'source_type'       => 'dye_batches',
+        'source_id'         => $batchId,
+        'posted_by'         => 1
     ]);
 
     header('Location: ' . Url::to('/dyeing/roll-packing?packed=1'));
@@ -76,6 +96,12 @@ $batches = Database::fetchAll("SELECT b.*, r.shade_name FROM dye_batches b JOIN 
         <p class="text-secondary small mb-0">Pack finished dyed rolls, generate thermal barcodes (Code128 / QR), track roll weight, length, grade and post to finished stock.</p>
       </div>
       <div class="d-flex gap-2">
+        <button type="button" onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-printer me-1"></i> Print Register
+        </button>
+        <button type="button" onclick="exportTableToCSV('rollPackingTable', 'finished_roll_packing_register.csv')" class="btn btn-outline-success btn-sm">
+          <i class="bi bi-file-earmark-excel me-1"></i> Export Excel/CSV
+        </button>
         <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#newRollModal">
           <i class="bi bi-plus-lg me-1"></i> Form & Pack New Roll
         </button>
@@ -89,7 +115,7 @@ $batches = Database::fetchAll("SELECT b.*, r.shade_name FROM dye_batches b JOIN 
         <span class="small text-secondary"><?= count($rolls) ?> Packaged Rolls</span>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0 small">
+        <table id="rollPackingTable" class="table table-hover align-middle mb-0 small">
           <thead class="table-light">
             <tr>
               <th>Roll Barcode / ID</th>

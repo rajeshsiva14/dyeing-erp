@@ -31,22 +31,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
     $waterVolume = $plannedKg * $ratioNum;
 
-    Database::insert('dye_batches', [
-        'company_id'          => 1,
-        'batch_no'            => $batchNo,
-        'production_order_id' => $jobCardId,
-        'dye_recipe_id'       => $recipeId,
-        'machine_id'          => $machineId,
-        'planned_weight_kg'   => $plannedKg,
-        'actual_loaded_kg'    => $loadedKg,
-        'water_volume_litres' => $waterVolume,
-        'liquor_ratio'        => $liquorRatio,
-        'operator_name'       => trim($_POST['operator_name'] ?? 'M. Ramanathan'),
-        'status'              => 'planned'
-    ]);
+    $companyId = (int)(\Core\Security\SessionManager::getUser()['company_id'] ?? 1);
 
-    // Update job card status to planned
-    Database::getConnection()->prepare("UPDATE dyeing_job_cards SET status = 'planned' WHERE id = ?")->execute([$jobCardId]);
+    Database::beginTransaction();
+    try {
+        Database::insert('dye_batches', [
+            'company_id'          => $companyId,
+            'batch_no'            => $batchNo,
+            'production_order_id' => $jobCardId,
+            'dye_recipe_id'       => $recipeId,
+            'machine_id'          => $machineId,
+            'planned_weight_kg'   => $plannedKg,
+            'actual_loaded_kg'    => $loadedKg,
+            'water_volume_litres' => $waterVolume,
+            'liquor_ratio'        => $liquorRatio,
+            'operator_name'       => trim($_POST['operator_name'] ?? 'M. Ramanathan'),
+            'status'              => 'planned'
+        ]);
+
+        // Update job card status to planned
+        Database::getConnection()->prepare("UPDATE dyeing_job_cards SET status = 'planned' WHERE id = ?")->execute([$jobCardId]);
+        Database::commit();
+    } catch (\Throwable $e) {
+        Database::rollBack();
+        throw $e;
+    }
 
     header('Location: ' . Url::to('/dyeing/batches?created=1'));
     exit;

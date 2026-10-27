@@ -39,37 +39,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $rejectedWeight = (float)($_POST['rejected_weight_kg'] ?? 0);
     $disposition = $_POST['qc_disposition'] ?? 'accepted';
     $comments = trim($_POST['inspector_comments'] ?? '');
+    $companyId = (int)(\Core\Security\SessionManager::getUser()['company_id'] ?? 1);
 
-    Database::insert('grey_fabric_inspections', [
-        'company_id'            => 1,
-        'inspection_no'         => $inspectionNo,
-        'inward_id'             => $inwardId,
-        'inward_no'             => $inwardNo,
-        'inspection_date'       => date('Y-m-d'),
-        'inspector_name'        => trim($_POST['inspector_name'] ?? 'K. Arumugam (QC Lead)'),
-        'fabric_code'           => $inward['fabric_code'] ?? 'FAB-SJ-160',
-        'grey_lot_no'           => $inward['grey_lot_no'] ?? 'LOT-GRY-26-001',
-        'measured_gsm'          => $measuredGsm,
-        'measured_width_inches' => $measuredWidth,
-        'hole_tear_count'       => $holeTear,
-        'oil_stain_count'       => $oilStain,
-        'knitting_defect_count' => $knittingDefects,
-        'contamination_found'   => $contamination,
-        'shade_variation_obs'   => $shadeVariation,
-        'defect_grade'          => $defectGrade,
-        'inspected_rolls'       => $inspectedRolls,
-        'accepted_rolls'        => $acceptedRolls,
-        'rejected_rolls'        => $rejectedRolls,
-        'hold_rolls'            => $holdRolls,
-        'accepted_weight_kg'    => $acceptedWeight,
-        'rejected_weight_kg'    => $rejectedWeight,
-        'qc_disposition'        => $disposition,
-        'inspector_comments'    => $comments
-    ]);
+    Database::beginTransaction();
+    try {
+        Database::insert('grey_fabric_inspections', [
+            'company_id'            => $companyId,
+            'inspection_no'         => $inspectionNo,
+            'inward_id'             => $inwardId,
+            'inward_no'             => $inwardNo,
+            'inspection_date'       => date('Y-m-d'),
+            'inspector_name'        => trim($_POST['inspector_name'] ?? 'K. Arumugam (QC Lead)'),
+            'fabric_code'           => $inward['fabric_code'] ?? 'FAB-SJ-160',
+            'grey_lot_no'           => $inward['grey_lot_no'] ?? 'LOT-GRY-26-001',
+            'measured_gsm'          => $measuredGsm,
+            'measured_width_inches' => $measuredWidth,
+            'hole_tear_count'       => $holeTear,
+            'oil_stain_count'       => $oilStain,
+            'knitting_defect_count' => $knittingDefects,
+            'contamination_found'   => $contamination,
+            'shade_variation_obs'   => $shadeVariation,
+            'defect_grade'          => $defectGrade,
+            'inspected_rolls'       => $inspectedRolls,
+            'accepted_rolls'        => $acceptedRolls,
+            'rejected_rolls'        => $rejectedRolls,
+            'hold_rolls'            => $holdRolls,
+            'accepted_weight_kg'    => $acceptedWeight,
+            'rejected_weight_kg'    => $rejectedWeight,
+            'qc_disposition'        => $disposition,
+            'inspector_comments'    => $comments
+        ]);
 
-    // Update inward QC status
-    $newInwardStatus = ($disposition === 'accepted') ? 'passed' : (($disposition === 'rejected') ? 'rejected' : 'partially_passed');
-    Database::getConnection()->prepare("UPDATE grey_fabric_inwards SET qc_status = ? WHERE id = ?")->execute([$newInwardStatus, $inwardId]);
+        // Update inward QC status
+        $newInwardStatus = ($disposition === 'accepted') ? 'passed' : (($disposition === 'rejected') ? 'rejected' : 'partially_passed');
+        Database::getConnection()->prepare("UPDATE grey_fabric_inwards SET qc_status = ? WHERE id = ?")->execute([$newInwardStatus, $inwardId]);
+        Database::commit();
+    } catch (\Throwable $e) {
+        Database::rollBack();
+        throw $e;
+    }
 
     header('Location: ' . Url::to('/dyeing/grey-inspection?success=1'));
     exit;

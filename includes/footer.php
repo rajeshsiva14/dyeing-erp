@@ -176,6 +176,49 @@ $baseUrl = Url::base();
     const t = bootstrap.Toast.getOrCreateInstance(toastEl);
     t.show();
   };
+
+  // Global Excel/CSV Export Utility for Registers
+  window.exportTableToCSV = function(tableId, filename = 'register_export.csv') {
+    const table = document.getElementById(tableId);
+    if (!table) {
+      alert('Table not found for export');
+      return;
+    }
+
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+      let row = [];
+      const cols = rows[i].querySelectorAll('th, td');
+      for (let j = 0; j < cols.length; j++) {
+        // Skip Actions column
+        const headerText = cols[j].innerText.trim().toLowerCase();
+        if (headerText === 'actions' || headerText === 'action' || headerText === 'print actions') {
+          continue;
+        }
+        if (j === cols.length - 1 && cols[j].querySelector('.btn, a.btn, button')) {
+          continue;
+        }
+        let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ').trim();
+        data = data.replace(/"/g, '""');
+        row.push('"' + data + '"');
+      }
+      if (row.length > 0) {
+        csv.push(row.join(','));
+      }
+    }
+
+    const blob = new Blob(['\uFEFF' + csv.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 </script>
 </body>
 </html>

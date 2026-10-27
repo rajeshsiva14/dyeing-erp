@@ -38,9 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $customerShadeRef = trim($_POST['customer_shade_ref'] ?? 'Pantone 19-4024 TCX');
     $fastnessSpec = trim($_POST['fastness_spec'] ?? 'Wash: 4-5, Rubbing: 4, Perspiration: 4');
     $specialFinish = trim($_POST['special_finish'] ?? 'Bio-Polishing Enzyme + Cationic Softener');
+    $companyId = (int)(\Core\Security\SessionManager::getUser()['company_id'] ?? 1);
 
     Database::insert('dyeing_job_cards', [
-        'company_id'         => 1,
+        'company_id'         => $companyId,
         'job_card_no'        => $jobCardNo,
         'job_date'           => date('Y-m-d'),
         'customer_id'        => $customerId,
@@ -328,6 +329,12 @@ $inProdCount = count(array_filter($jobCards, fn($j) => $j['status'] === 'in_prod
           <p class="text-secondary small mb-0">Customer PO instructions, target specifications (GSM, width, fastness), route, and recipe binding.</p>
         </div>
         <div class="d-flex gap-2">
+          <button type="button" onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-printer me-1"></i> Print Register
+          </button>
+          <button type="button" onclick="exportTableToCSV('jobCardsTable', 'dyeing_job_cards_register.csv')" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Excel/CSV
+          </button>
           <a href="<?= Url::to('/dyeing/job-cards?action=new') ?>" class="btn btn-dark btn-sm">
             <i class="bi bi-plus-circle me-1"></i> Create Job Card
           </a>
@@ -380,7 +387,7 @@ $inProdCount = count(array_filter($jobCards, fn($j) => $j['status'] === 'in_prod
           <span class="small text-secondary"><?= count($jobCards) ?> Job Cards</span>
         </div>
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0 small">
+          <table id="jobCardsTable" class="table table-hover align-middle mb-0 small">
             <thead>
               <tr>
                 <th>Job Card No</th>

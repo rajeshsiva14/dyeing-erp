@@ -70,7 +70,7 @@ function getJsonInput(): array {
     }
 
     // Check password
-    if (!password_verify($password, $user['password_hash']) && $password !== 'password123') {
+    if (!password_verify($password, $user['password_hash'])) {
         jsonError('UNAUTHORIZED', 'Invalid username or password.', 401);
     }
 

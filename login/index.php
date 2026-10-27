@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $user = \Core\Database\Database::fetch("SELECT * FROM users WHERE username = ? OR email = ?", [$username, $username]);
     if ($user && $user['status'] === 'active') {
-        if (password_verify($password, $user['password_hash']) || $password === 'password123') {
+        if (password_verify($password, $user['password_hash'])) {
             SessionManager::setUser([
                 'id'          => $user['id'],
                 'company_id'  => $user['company_id'],
@@ -764,10 +764,18 @@ $baseUrl = Url::base();
     }
 
     .quick-card-arrow {
-      font-size: 0.72rem;
-      color: #94A3B8;
-      transition: transform 0.15s ease, color 0.15s ease;
+      font-size: 0.82rem;
+      color: #2563EB;
+      font-weight: 700;
+      transition: transform 0.15s ease;
       flex-shrink: 0;
+    }
+
+    .icon-circle-bg {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #EAF3FF;
     }
 
     /* Card Footer */
@@ -1172,6 +1180,31 @@ $baseUrl = Url::base();
     <div class="login-card" id="loginCard">
 
       <!-- ============================================================ -->
+      <!-- Top-Right Decorative Flowing Wave Ribbon Matching Image 1    -->
+      <!-- ============================================================ -->
+      <div class="card-wave-corner" aria-hidden="true">
+        <svg viewBox="0 0 170 110" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <path d="M40 0C70 45 110 25 170 65V0H40Z" fill="url(#waveG1)" opacity="0.35"/>
+          <path d="M0 0C50 55 100 20 170 90V0H0Z" fill="url(#waveG2)" opacity="0.22"/>
+          <path d="M90 0C110 30 140 18 170 42V0H90Z" fill="url(#waveG3)" opacity="0.28"/>
+          <defs>
+            <linearGradient id="waveG1" x1="40" y1="0" x2="170" y2="65" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#3B82F6"/>
+              <stop offset="1" stop-color="#93C5FD" stop-opacity="0.2"/>
+            </linearGradient>
+            <linearGradient id="waveG2" x1="0" y1="0" x2="170" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#2563EB"/>
+              <stop offset="1" stop-color="#DBEAFE" stop-opacity="0.1"/>
+            </linearGradient>
+            <linearGradient id="waveG3" x1="90" y1="0" x2="170" y2="42" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#60A5FA"/>
+              <stop offset="1" stop-color="#BAE6FD" stop-opacity="0.15"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- ============================================================ -->
       <!-- Stunning Enterprise Login Success Overlay (Smooth Transition)-->
       <!-- ============================================================ -->
       <div class="login-success-overlay" id="loginSuccessOverlay">
@@ -1232,8 +1265,8 @@ $baseUrl = Url::base();
                    id="usernameInput" 
                    name="username" 
                    class="custom-input" 
-                   placeholder="Enter username or email" 
-                   value="admin" 
+                   placeholder="Enter your username or email" 
+                   value="" 
                    required 
                    autofocus>
           </div>
@@ -1251,8 +1284,8 @@ $baseUrl = Url::base();
                    id="passwordInput" 
                    name="password" 
                    class="custom-input" 
-                   placeholder="Enter password" 
-                   value="password123" 
+                   placeholder="Enter your password" 
+                   value="" 
                    required>
             <button type="button" class="password-toggle-btn" id="togglePasswordBtn" aria-label="Toggle password visibility">
               <i data-lucide="eye" id="toggleEyeIcon" style="width: 18px; height: 18px;"><i class="bi bi-eye"></i></i>
@@ -1270,7 +1303,7 @@ $baseUrl = Url::base();
           </div>
         </div>
 
-        <!-- Primary Submit Button (Height 48px matching input) -->
+        <!-- Primary Submit Button -->
         <button type="submit" class="btn-submit-login" id="submitBtn">
           <span>Sign In to Workspace</span>
           <i data-lucide="arrow-right" style="width: 18px; height: 18px;"><i class="bi bi-arrow-right"></i></i>
@@ -1282,33 +1315,69 @@ $baseUrl = Url::base();
         <span>OR</span>
       </div>
 
-      <!-- Quick Access Department Head (Standardised White Surfaces) -->
-      <div class="quick-access-title">Quick Access (Department Head)</div>
+      <!-- Quick Access Department Head Matching Image 1 Exactly -->
+      <div class="quick-access-header">
+        <div class="quick-access-title">
+          <i data-lucide="users" style="width: 17px; height: 17px; color: #2563EB;"><i class="bi bi-people"></i></i>
+          <span>Quick Access (Department Head)</span>
+        </div>
+        <div class="quick-access-sub">Select your role to continue</div>
+      </div>
+
       <div class="quick-access-grid">
-        <button type="button" class="quick-role-btn" onclick="quickFill('admin')" title="Sign in as Super Admin">
-          <i data-lucide="crown" style="width: 15px; height: 15px;"><i class="bi bi-person-badge"></i></i>
-          <span>Super Admin</span>
+        <!-- Super Admin -->
+        <button type="button" class="quick-card-btn" onclick="quickFill('admin')" title="Sign in as Super Admin">
+          <div class="d-flex align-items-center gap-2">
+            <span class="quick-card-icon-wrap"><i data-lucide="crown" style="width: 18px; height: 18px;"><i class="bi bi-person-badge"></i></i></span>
+            <div class="text-start">
+              <div class="quick-card-name">Super Admin</div>
+              <div class="quick-card-role">Full Access</div>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right quick-card-arrow"></i>
         </button>
 
-        <button type="button" class="quick-role-btn" onclick="quickFill('dyeing_mgr')" title="Sign in as Dyeing Master">
-          <i data-lucide="flask-conical" style="width: 15px; height: 15px;"><i class="bi bi-eyedropper"></i></i>
-          <span>Dyeing Master</span>
+        <!-- Dyeing Master -->
+        <button type="button" class="quick-card-btn" onclick="quickFill('dyeing_mgr')" title="Sign in as Dyeing Master">
+          <div class="d-flex align-items-center gap-2">
+            <span class="quick-card-icon-wrap"><i data-lucide="flask-conical" style="width: 18px; height: 18px;"><i class="bi bi-eyedropper"></i></i></span>
+            <div class="text-start">
+              <div class="quick-card-name">Dyeing Master</div>
+              <div class="quick-card-role">Production</div>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right quick-card-arrow"></i>
         </button>
 
-        <button type="button" class="quick-role-btn" onclick="quickFill('qc_lead')" title="Sign in as QA Lead">
-          <i data-lucide="shield-check" style="width: 15px; height: 15px;"><i class="bi bi-shield-check"></i></i>
-          <span>QA Lead</span>
+        <!-- QA Lead -->
+        <button type="button" class="quick-card-btn" onclick="quickFill('qc_lead')" title="Sign in as QA Lead">
+          <div class="d-flex align-items-center gap-2">
+            <span class="quick-card-icon-wrap icon-circle-bg"><i data-lucide="shield-check" style="width: 17px; height: 17px;"><i class="bi bi-shield-check"></i></i></span>
+            <div class="text-start">
+              <div class="quick-card-name">QA Lead</div>
+              <div class="quick-card-role">Quality Control</div>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right quick-card-arrow"></i>
         </button>
 
-        <button type="button" class="quick-role-btn" onclick="quickFill('finance_mgr')" title="Sign in as Finance CFO">
-          <i data-lucide="bar-chart-2" style="width: 15px; height: 15px;"><i class="bi bi-graph-up"></i></i>
-          <span>Finance CFO</span>
+        <!-- Finance CFO -->
+        <button type="button" class="quick-card-btn" onclick="quickFill('finance_mgr')" title="Sign in as Finance CFO">
+          <div class="d-flex align-items-center gap-2">
+            <span class="quick-card-icon-wrap"><i data-lucide="bar-chart-2" style="width: 18px; height: 18px;"><i class="bi bi-graph-up"></i></i></span>
+            <div class="text-start">
+              <div class="quick-card-name">Finance CFO</div>
+              <div class="quick-card-role">Finance &amp; Reports</div>
+            </div>
+          </div>
+          <i class="bi bi-chevron-right quick-card-arrow"></i>
         </button>
       </div>
 
-      <!-- Footer text -->
+      <!-- Footer text with factory icon -->
       <div class="login-card-footer">
-        Integrated Manufacturing ERP for Textile Industry
+        <i data-lucide="factory" style="width: 15px; height: 15px; color: #64748B;"><i class="bi bi-buildings"></i></i>
+        <span>Integrated Manufacturing ERP for Textile Industry</span>
       </div>
 
     </div>

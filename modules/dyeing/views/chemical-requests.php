@@ -8,6 +8,7 @@
 use Core\Support\Url;
 use Core\Database\Database;
 use Core\Security\CSRF;
+use Core\Services\InventoryService;
 
 $pageTitle = 'Chemical Issue & Consumption';
 $activeModule = 'chemical-requests';
@@ -22,61 +23,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $batchNo = $batch['batch_no'] ?? 'BATCH-2026-0001';
     $recipeId = $batch['dye_recipe_id'] ?? 1;
 
-    $reqId = Database::insert('chemical_issue_requests', [
-        'company_id'             => 1,
-        'request_no'             => $reqNo,
-        'dye_batch_id'           => $batchId,
-        'batch_no'               => $batchNo,
-        'recipe_id'              => $recipeId,
-        'request_date'           => date('Y-m-d'),
-        'required_time'          => date('H:i:s'),
-        'requester_name'         => trim($_POST['requester_name'] ?? 'M. Ramanathan (Vessel Operator)'),
-        'warehouse_id'           => 2,
-        'total_chemicals_count'  => 3,
-        'status'                 => 'approved',
-        'approved_by'            => 'S. Natarajan (Dye House Mgr)'
-    ]);
+    Database::beginTransaction();
+    try {
+        $reqId = Database::insert('chemical_issue_requests', [
+            'company_id'             => 1,
+            'request_no'             => $reqNo,
+            'dye_batch_id'           => $batchId,
+            'batch_no'               => $batchNo,
+            'recipe_id'              => $recipeId,
+            'request_date'           => date('Y-m-d'),
+            'required_time'          => date('H:i:s'),
+            'requester_name'         => trim($_POST['requester_name'] ?? 'M. Ramanathan (Vessel Operator)'),
+            'warehouse_id'           => 2,
+            'total_chemicals_count'  => 3,
+            'status'                 => 'approved',
+            'approved_by'            => 'S. Natarajan (Dye House Mgr)'
+        ]);
 
-    // Insert Default chemicals for the batch
-    Database::insert('chemical_issue_items', [
-        'request_id'          => $reqId,
-        'product_id'          => 6,
-        'chemical_name'       => 'Glauber Salt (Sodium Sulphate)',
-        'item_type'           => 'salt',
-        'required_qty'        => 45.000,
-        'issued_qty'          => 45.000,
-        'returned_qty'        => 0.000,
-        'actual_consumed_qty' => 45.000,
-        'uom'                 => 'Kg',
-        'lot_number'          => 'LOT-GLB-26-01'
-    ]);
-    Database::insert('chemical_issue_items', [
-        'request_id'          => $reqId,
-        'product_id'          => 7,
-        'chemical_name'       => 'Soda Ash Light',
-        'item_type'           => 'alkali',
-        'required_qty'        => 18.000,
-        'issued_qty'          => 18.000,
-        'returned_qty'        => 0.000,
-        'actual_consumed_qty' => 18.000,
-        'uom'                 => 'Kg',
-        'lot_number'          => 'LOT-SDA-26-05'
-    ]);
-    Database::insert('chemical_issue_items', [
-        'request_id'          => $reqId,
-        'product_id'          => 5,
-        'chemical_name'       => 'Reactive Navy Blue ED-2B',
-        'item_type'           => 'dye',
-        'required_qty'        => 14.500,
-        'issued_qty'          => 14.500,
-        'returned_qty'        => 0.200,
-        'actual_consumed_qty' => 14.300,
-        'uom'                 => 'Kg',
-        'lot_number'          => 'LOT-DY-NV-88'
-    ]);
+        $chemicalsToIssue = [
+            ['id' => 6, 'name' => 'Glauber Salt (Sodium Sulphate)', 'type' => 'salt', 'qty' => 45.000, 'lot' => 'LOT-GLB-26-01', 'cost' => 18.50],
+            ['id' => 7, 'name' => 'Soda Ash Light', 'type' => 'alkali', 'qty' => 18.000, 'lot' => 'LOT-SDA-26-05', 'cost' => 32.00],
+            ['id' => 5, 'name' => 'Reactive Navy Blue ED-2B', 'type' => 'dye', 'qty' => 14.500, 'lot' => 'LOT-DY-NV-88', 'cost' => 420.00]
+        ];
 
-    header('Location: ' . Url::to('/dyeing/chemical-requests?created=1'));
-    exit;
+        foreach ($chemicalsToIssue as $chem) {
+            Database::insert('chemical_issue_items', [
+                'request_id'          => $reqId,
+                'product_id'          => $chem['id'],
+                'chemical_name'       => $chem['name'],
+                'item_type'           => $chem['type'],
+                'required_qty'        => $chem['qty'],
+                'issued_qty'          => $chem['qty'],
+                'returned_qty'        => 0.000,
+                'actual_consumed_qty' => $chem['qty'],
+                'uom'                 => 'Kg',
+                'lot_number'          => $chem['lot']
+            ]);
+
+            // Post stock reduction movement to raw materials/chemical ledger
+            InventoryService::postMovement([
+                'company_id'        => 1,
+                'warehouse_id'      => 2, // Dyes & Chemicals Warehouse
+                'product_id'        => $chem['id'],
+                'movement_type'     => 'production_issue',
+                'quantity_base_uom' => -$chem['qty'],
+                'unit_cost'         => $chem['cost'],
+                'source_type'       => 'dye_batches',
+                'source_id'         => $batchId,
+                'posted_by'         => 1
+            ]);
+        }
+
+        Database::commit();
+        header('Location: ' . Url::to('/dyeing/chemical-requests?created=1'));
+        exit;
+    } catch (\Throwable $e) {
+        Database::rollBack();
+        $errorMsg = $e->getMessage();
+    }
 }
 
 require_once dirname(__DIR__, 3) . '/includes/header.php';

@@ -15,6 +15,7 @@ $activeModule = 'lab-dips';
 // Handle new Lab Dip Request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_lab_dip') {
     CSRF::validateToken($_POST['csrf_token'] ?? '');
+    $companyId = (int)(\Core\Security\SessionManager::getUser()['company_id'] ?? 1);
     $reqNo = 'LAB-' . date('Y') . '-' . str_pad((string)rand(10, 9999), 4, '0', STR_PAD_LEFT);
     $customerId = (int)($_POST['customer_id'] ?? 1);
     $shadeName = trim($_POST['shade_name'] ?? '');
@@ -24,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $dueDate = $_POST['due_date'] ?? date('Y-m-d', strtotime('+3 days'));
 
     Database::insert('lab_dip_requests', [
-        'company_id'   => 1,
+        'company_id'   => $companyId,
         'request_no'   => $reqNo,
         'customer_id'  => $customerId,
         'shade_name'   => $shadeName,
@@ -55,19 +56,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         ['dye' => trim($_POST['dye_3'] ?? 'Reactive Yellow 145'), 'dose_pct' => (float)($_POST['dose_3'] ?? 0.08)],
     ]);
 
-    Database::insert('lab_dip_trials', [
-        'lab_dip_id'               => $labDipId,
-        'trial_number'             => $trialNum,
-        'dyes_formula'             => $formulaJson,
-        'delta_e'                  => $deltaE,
-        'result'                   => $result,
-        'submitted_to_customer_at' => date('Y-m-d'),
-        'customer_feedback'        => $feedback,
-        'is_approved'              => $isApproved
-    ]);
+    Database::beginTransaction();
+    try {
+        Database::insert('lab_dip_trials', [
+            'lab_dip_id'               => $labDipId,
+            'trial_number'             => $trialNum,
+            'dyes_formula'             => $formulaJson,
+            'delta_e'                  => $deltaE,
+            'result'                   => $result,
+            'submitted_to_customer_at' => date('Y-m-d'),
+            'customer_feedback'        => $feedback,
+            'is_approved'              => $isApproved
+        ]);
 
-    if ($isApproved) {
-        Database::getConnection()->prepare("UPDATE lab_dip_requests SET status = 'approved' WHERE id = ?")->execute([$labDipId]);
+        if ($isApproved) {
+            Database::getConnection()->prepare("UPDATE lab_dip_requests SET status = 'approved' WHERE id = ?")->execute([$labDipId]);
+        }
+        Database::commit();
+    } catch (\Throwable $e) {
+        Database::rollBack();
+        throw $e;
     }
 
     header('Location: ' . Url::to('/dyeing/lab-dips?trial_added=1'));

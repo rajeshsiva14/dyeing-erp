@@ -1380,3 +1380,531 @@ CREATE TABLE IF NOT EXISTS print_logs (
     reprint_reason VARCHAR(255) NULL,
     printed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- =============================================================
+-- DYEING ERP MODULE SCHEMA EXTENSIONS (18 WORKFLOW TABLES)
+
+-- =====================================================================
+-- 17. KARCEM DYEING ERP MODULE WORKFLOW EXTENSIONS (18 TABLES)
+-- =====================================================================
+
+-- MariaDB dump 10.19  Distrib 10.4.28-MariaDB, for osx10.10 (x86_64)
+--
+-- Host: localhost    Database: textile_erp
+-- ------------------------------------------------------
+-- Server version	10.4.28-MariaDB
+
+--
+-- Table structure for table `chemical_issue_items`
+--
+
+DROP TABLE IF EXISTS `chemical_issue_items`;
+
+CREATE TABLE `chemical_issue_items` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `request_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned NOT NULL,
+  `chemical_name` varchar(150) NOT NULL,
+  `item_type` enum('dye','chemical','salt','alkali','auxiliary') NOT NULL,
+  `required_qty` decimal(10,3) NOT NULL,
+  `issued_qty` decimal(10,3) NOT NULL DEFAULT 0.000,
+  `returned_qty` decimal(10,3) NOT NULL DEFAULT 0.000,
+  `actual_consumed_qty` decimal(10,3) NOT NULL DEFAULT 0.000,
+  `uom` varchar(16) NOT NULL DEFAULT 'Kg',
+  `lot_number` varchar(64) DEFAULT NULL,
+  `variance_reason` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `chemical_issue_requests`
+--
+
+DROP TABLE IF EXISTS `chemical_issue_requests`;
+
+CREATE TABLE `chemical_issue_requests` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `request_no` varchar(64) NOT NULL,
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `recipe_id` bigint(20) unsigned NOT NULL,
+  `request_date` date NOT NULL,
+  `required_time` time NOT NULL,
+  `requester_name` varchar(100) NOT NULL,
+  `warehouse_id` bigint(20) unsigned NOT NULL DEFAULT 2,
+  `total_chemicals_count` int(11) NOT NULL DEFAULT 0,
+  `status` enum('draft','submitted','approved','partially_issued','fully_issued','closed') NOT NULL DEFAULT 'draft',
+  `approved_by` varchar(100) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `request_no` (`request_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_batch_costings`
+--
+
+DROP TABLE IF EXISTS `dyeing_batch_costings`;
+
+CREATE TABLE `dyeing_batch_costings` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `costing_no` varchar(64) NOT NULL,
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `grey_fabric_cost` decimal(12,2) NOT NULL,
+  `dyes_chemicals_cost` decimal(12,2) NOT NULL,
+  `water_cost` decimal(10,2) NOT NULL,
+  `steam_fuel_cost` decimal(10,2) NOT NULL,
+  `power_electricity_cost` decimal(10,2) NOT NULL,
+  `direct_labour_cost` decimal(10,2) NOT NULL,
+  `machine_overhead_cost` decimal(10,2) NOT NULL,
+  `reprocess_cost` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `total_batch_cost` decimal(12,2) NOT NULL,
+  `accepted_output_kg` decimal(10,2) NOT NULL,
+  `cost_per_kg_input` decimal(8,2) NOT NULL,
+  `cost_per_kg_accepted` decimal(8,2) NOT NULL,
+  `selling_rate_per_kg` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `gross_margin_pct` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `costing_no` (`costing_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_batch_qcs`
+--
+
+DROP TABLE IF EXISTS `dyeing_batch_qcs`;
+
+CREATE TABLE `dyeing_batch_qcs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `qc_no` varchar(64) NOT NULL,
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `inspection_date` date NOT NULL,
+  `inspector_name` varchar(100) NOT NULL,
+  `shade_match` enum('approved','within_tolerance','rejected') NOT NULL DEFAULT 'approved',
+  `side_to_side_variation` enum('none','acceptable','rejectable') NOT NULL DEFAULT 'none',
+  `end_to_end_variation` enum('none','acceptable','rejectable') NOT NULL DEFAULT 'none',
+  `measured_gsm` int(11) NOT NULL,
+  `measured_width_inches` decimal(6,2) NOT NULL,
+  `wash_fastness` varchar(16) NOT NULL DEFAULT '4-5',
+  `rubbing_fastness` varchar(16) NOT NULL DEFAULT '4',
+  `perspiration_fastness` varchar(16) NOT NULL DEFAULT '4',
+  `ph_after_wash` decimal(4,2) NOT NULL DEFAULT 6.50,
+  `accepted_kg` decimal(10,2) NOT NULL,
+  `hold_kg` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `rejected_kg` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `qc_disposition` enum('accepted','partially_accepted','hold','rejected','reprocess') NOT NULL DEFAULT 'accepted',
+  `remarks` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `qc_no` (`qc_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_defects`
+--
+
+DROP TABLE IF EXISTS `dyeing_defects`;
+
+CREATE TABLE `dyeing_defects` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `defect_code` varchar(32) NOT NULL,
+  `defect_name` varchar(100) NOT NULL,
+  `category` enum('fabric_construction','dyeing_process','finishing','stain_contamination') NOT NULL,
+  `severity` enum('minor','major','critical') NOT NULL DEFAULT 'minor',
+  `four_point_penalty` int(11) NOT NULL DEFAULT 1,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `defect_code` (`defect_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_job_cards`
+--
+
+DROP TABLE IF EXISTS `dyeing_job_cards`;
+
+CREATE TABLE `dyeing_job_cards` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `job_card_no` varchar(64) NOT NULL,
+  `job_date` date NOT NULL,
+  `customer_id` bigint(20) unsigned NOT NULL,
+  `sales_order_ref` varchar(64) DEFAULT NULL,
+  `customer_po` varchar(64) DEFAULT NULL,
+  `priority` enum('normal','medium','high','urgent') NOT NULL DEFAULT 'normal',
+  `required_date` date NOT NULL,
+  `job_type` enum('regular','sample','urgent','reprocess') NOT NULL DEFAULT 'regular',
+  `dyeing_route` enum('reactive','disperse','vat','pigment','acid','cationic') NOT NULL DEFAULT 'reactive',
+  `fabric_id` bigint(20) unsigned DEFAULT NULL,
+  `fabric_name` varchar(150) NOT NULL,
+  `fabric_composition` varchar(100) NOT NULL,
+  `grey_lot_no` varchar(64) DEFAULT NULL,
+  `required_qty_kg` decimal(10,2) NOT NULL,
+  `roll_count` int(11) NOT NULL DEFAULT 0,
+  `target_gsm` int(11) NOT NULL,
+  `target_width_inches` decimal(6,2) NOT NULL,
+  `shade_code` varchar(64) NOT NULL,
+  `shade_name` varchar(100) NOT NULL,
+  `customer_shade_ref` varchar(100) DEFAULT NULL,
+  `fastness_spec` varchar(100) DEFAULT 'Wash: 4-5, Rubbing: 4, Perspiration: 4',
+  `special_finish` varchar(150) DEFAULT 'Soft Feel / Bio-Polish / Compacting',
+  `recipe_id` bigint(20) unsigned DEFAULT NULL,
+  `allocated_machine_id` bigint(20) unsigned DEFAULT NULL,
+  `status` enum('draft','pending_approval','approved','planned','in_production','qc_pending','completed','cancelled') NOT NULL DEFAULT 'draft',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `approved_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `job_card_no` (`job_card_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_job_work_challans`
+--
+
+DROP TABLE IF EXISTS `dyeing_job_work_challans`;
+
+CREATE TABLE `dyeing_job_work_challans` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `challan_no` varchar(64) NOT NULL,
+  `challan_type` enum('outward_to_processor','inward_from_customer') NOT NULL DEFAULT 'outward_to_processor',
+  `partner_id` bigint(20) unsigned NOT NULL,
+  `partner_name` varchar(150) NOT NULL,
+  `challan_date` date NOT NULL,
+  `expected_return_date` date NOT NULL,
+  `fabric_description` varchar(200) NOT NULL,
+  `grey_lot_no` varchar(64) NOT NULL,
+  `dispatched_rolls` int(11) NOT NULL,
+  `dispatched_weight_kg` decimal(10,2) NOT NULL,
+  `required_shade` varchar(100) NOT NULL,
+  `process_type` varchar(100) NOT NULL DEFAULT 'Dyeing & Bio-Polish',
+  `process_rate_per_kg` decimal(8,2) NOT NULL,
+  `vehicle_no` varchar(32) DEFAULT NULL,
+  `transporter` varchar(100) DEFAULT NULL,
+  `received_rolls` int(11) NOT NULL DEFAULT 0,
+  `received_weight_kg` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `weight_loss_kg` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `status` enum('draft','dispatched','in_process','received','qc_passed','settled') NOT NULL DEFAULT 'dispatched',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `challan_no` (`challan_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_process_sheets`
+--
+
+DROP TABLE IF EXISTS `dyeing_process_sheets`;
+
+CREATE TABLE `dyeing_process_sheets` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `sheet_no` varchar(64) NOT NULL,
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `recipe_id` bigint(20) unsigned NOT NULL,
+  `machine_id` bigint(20) unsigned NOT NULL,
+  `total_stages` int(11) NOT NULL DEFAULT 6,
+  `approved_by` varchar(100) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sheet_no` (`sheet_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_process_stages`
+--
+
+DROP TABLE IF EXISTS `dyeing_process_stages`;
+
+CREATE TABLE `dyeing_process_stages` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `process_sheet_id` bigint(20) unsigned NOT NULL,
+  `stage_no` int(11) NOT NULL,
+  `stage_name` varchar(100) NOT NULL,
+  `target_temperature_c` decimal(5,1) NOT NULL,
+  `actual_temperature_c` decimal(5,1) DEFAULT NULL,
+  `temp_ramp_rate` decimal(4,1) DEFAULT NULL,
+  `target_ph` decimal(4,2) NOT NULL,
+  `actual_ph` decimal(4,2) DEFAULT NULL,
+  `target_duration_mins` int(11) NOT NULL,
+  `actual_duration_mins` int(11) DEFAULT NULL,
+  `chemical_addition` text DEFAULT NULL,
+  `operator_instruction` text DEFAULT NULL,
+  `status` enum('pending','in_progress','completed','deviation','hold') NOT NULL DEFAULT 'pending',
+  `completed_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_reasons`
+--
+
+DROP TABLE IF EXISTS `dyeing_reasons`;
+
+CREATE TABLE `dyeing_reasons` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `reason_code` varchar(32) NOT NULL,
+  `reason_type` enum('wastage','reprocess','downtime','hold') NOT NULL,
+  `reason_name` varchar(150) NOT NULL,
+  `department` varchar(50) NOT NULL DEFAULT 'Dyeing',
+  `requires_approval` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `reason_code` (`reason_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_reprocess_requests`
+--
+
+DROP TABLE IF EXISTS `dyeing_reprocess_requests`;
+
+CREATE TABLE `dyeing_reprocess_requests` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `request_no` varchar(64) NOT NULL,
+  `original_batch_id` bigint(20) unsigned NOT NULL,
+  `original_batch_no` varchar(64) NOT NULL,
+  `qc_inspection_id` bigint(20) unsigned DEFAULT NULL,
+  `defect_category` enum('shade_variation','uneven_dyeing','patchy','off_shade','stains','poor_fastness','other') NOT NULL,
+  `failed_criteria` varchar(200) NOT NULL,
+  `affected_rolls` int(11) NOT NULL,
+  `affected_weight_kg` decimal(10,2) NOT NULL,
+  `root_cause` text NOT NULL,
+  `corrective_action` text NOT NULL,
+  `revised_recipe_code` varchar(64) NOT NULL,
+  `additional_chem_cost` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `reprocess_attempt` int(11) NOT NULL DEFAULT 1,
+  `target_machine_id` bigint(20) unsigned NOT NULL,
+  `status` enum('pending_approval','approved','in_reprocess','completed','scrapped') NOT NULL DEFAULT 'pending_approval',
+  `approved_by` varchar(100) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `request_no` (`request_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_shade_checks`
+--
+
+DROP TABLE IF EXISTS `dyeing_shade_checks`;
+
+CREATE TABLE `dyeing_shade_checks` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `sample_id` varchar(64) NOT NULL,
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `sampling_stage` varchar(100) NOT NULL,
+  `sampled_at` datetime NOT NULL,
+  `sampled_by` varchar(100) NOT NULL,
+  `reference_shade` varchar(100) NOT NULL,
+  `light_source` varchar(64) NOT NULL DEFAULT 'D65',
+  `delta_e` decimal(5,2) DEFAULT NULL,
+  `l_val` decimal(6,2) DEFAULT NULL,
+  `a_val` decimal(6,2) DEFAULT NULL,
+  `b_val` decimal(6,2) DEFAULT NULL,
+  `visual_assessment` enum('exact_match','slightly_lighter','slightly_darker','slightly_redder','slightly_greener','off_shade') NOT NULL DEFAULT 'exact_match',
+  `qc_decision` enum('pass','fail','hold','add_dyes') NOT NULL DEFAULT 'pass',
+  `correction_notes` text DEFAULT NULL,
+  `qc_reviewer` varchar(100) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sample_id` (`sample_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_shades`
+--
+
+DROP TABLE IF EXISTS `dyeing_shades`;
+
+CREATE TABLE `dyeing_shades` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `shade_code` varchar(64) NOT NULL,
+  `shade_name` varchar(100) NOT NULL,
+  `pantone_ref` varchar(64) DEFAULT NULL,
+  `hex_color` varchar(10) NOT NULL DEFAULT '#1e3a8a',
+  `shade_family` enum('Navy/Blue','Black/Grey','Red/Maroon','Green/Olive','Yellow/Orange','White/Bleach','Pastel/Light') NOT NULL DEFAULT 'Navy/Blue',
+  `standard_l` decimal(6,2) DEFAULT NULL,
+  `standard_a` decimal(6,2) DEFAULT NULL,
+  `standard_b` decimal(6,2) DEFAULT NULL,
+  `delta_e_tolerance` decimal(4,2) NOT NULL DEFAULT 0.80,
+  `dye_class` enum('reactive','disperse','vat','direct') NOT NULL DEFAULT 'reactive',
+  `customer_id` bigint(20) unsigned DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `shade_code` (`shade_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_stock_transfers`
+--
+
+DROP TABLE IF EXISTS `dyeing_stock_transfers`;
+
+CREATE TABLE `dyeing_stock_transfers` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `transfer_no` varchar(64) NOT NULL,
+  `transfer_date` date NOT NULL,
+  `source_warehouse` varchar(100) NOT NULL DEFAULT 'Dyeing Finished Floor',
+  `dest_warehouse` varchar(100) NOT NULL DEFAULT 'Garment Cutting Store / Packing',
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `fabric_name` varchar(150) NOT NULL,
+  `shade_name` varchar(100) NOT NULL,
+  `rolls_count` int(11) NOT NULL,
+  `total_weight_kg` decimal(10,2) NOT NULL,
+  `sender_name` varchar(100) NOT NULL,
+  `receiver_name` varchar(100) DEFAULT NULL,
+  `vehicle_no` varchar(32) DEFAULT NULL,
+  `status` enum('draft','dispatched','received','reconciled') NOT NULL DEFAULT 'dispatched',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `transfer_no` (`transfer_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `dyeing_wastage_entries`
+--
+
+DROP TABLE IF EXISTS `dyeing_wastage_entries`;
+
+CREATE TABLE `dyeing_wastage_entries` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `entry_no` varchar(64) NOT NULL,
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `process_stage` enum('dyeing','hydro','drying','stenter','compactor','inspection') NOT NULL,
+  `input_kg` decimal(10,2) NOT NULL,
+  `output_kg` decimal(10,2) NOT NULL,
+  `sample_cut_kg` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `process_waste_kg` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `damaged_fabric_kg` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `unaccounted_loss_kg` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `net_loss_kg` decimal(8,2) NOT NULL,
+  `loss_percentage` decimal(5,2) NOT NULL,
+  `loss_reason` varchar(255) NOT NULL,
+  `disposal_method` varchar(150) DEFAULT 'Saleable Rags / Recycling',
+  `reported_by` varchar(100) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `entry_no` (`entry_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `grey_fabric_inspections`
+--
+
+DROP TABLE IF EXISTS `grey_fabric_inspections`;
+
+CREATE TABLE `grey_fabric_inspections` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `inspection_no` varchar(64) NOT NULL,
+  `inward_id` bigint(20) unsigned NOT NULL,
+  `inward_no` varchar(64) NOT NULL,
+  `inspection_date` date NOT NULL,
+  `inspector_name` varchar(100) NOT NULL,
+  `fabric_code` varchar(64) NOT NULL,
+  `grey_lot_no` varchar(64) NOT NULL,
+  `measured_gsm` int(11) NOT NULL,
+  `measured_width_inches` decimal(6,2) NOT NULL,
+  `hole_tear_count` int(11) NOT NULL DEFAULT 0,
+  `oil_stain_count` int(11) NOT NULL DEFAULT 0,
+  `knitting_defect_count` int(11) NOT NULL DEFAULT 0,
+  `contamination_found` enum('no','minor','severe') NOT NULL DEFAULT 'no',
+  `shade_variation_obs` varchar(100) DEFAULT NULL,
+  `defect_grade` enum('Grade A','Grade B','Grade C','Rejected') NOT NULL DEFAULT 'Grade A',
+  `inspected_rolls` int(11) NOT NULL,
+  `accepted_rolls` int(11) NOT NULL,
+  `rejected_rolls` int(11) NOT NULL DEFAULT 0,
+  `hold_rolls` int(11) NOT NULL DEFAULT 0,
+  `accepted_weight_kg` decimal(10,2) NOT NULL,
+  `rejected_weight_kg` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `qc_disposition` enum('accepted','hold','rejected','concession') NOT NULL DEFAULT 'accepted',
+  `inspector_comments` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `inspection_no` (`inspection_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `grey_fabric_inwards`
+--
+
+DROP TABLE IF EXISTS `grey_fabric_inwards`;
+
+CREATE TABLE `grey_fabric_inwards` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `inward_no` varchar(64) NOT NULL,
+  `inward_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `source_type` enum('knitting','weaving','external_supplier','transfer','customer_jobwork') NOT NULL,
+  `supplier_id` bigint(20) unsigned DEFAULT NULL,
+  `supplier_name` varchar(150) NOT NULL,
+  `delivery_challan_no` varchar(64) NOT NULL,
+  `po_or_order_ref` varchar(64) DEFAULT NULL,
+  `customer_id` bigint(20) unsigned DEFAULT NULL,
+  `vehicle_no` varchar(32) DEFAULT NULL,
+  `received_by` varchar(100) NOT NULL,
+  `warehouse_location` varchar(100) NOT NULL DEFAULT 'Grey Fabric Store - Bay A',
+  `fabric_code` varchar(64) NOT NULL,
+  `fabric_description` varchar(200) NOT NULL,
+  `construction` enum('knitted','woven','other') NOT NULL DEFAULT 'knitted',
+  `composition` varchar(100) NOT NULL,
+  `grey_lot_no` varchar(64) NOT NULL,
+  `received_rolls` int(11) NOT NULL,
+  `gross_weight_kg` decimal(10,2) NOT NULL,
+  `tare_weight_kg` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `net_weight_kg` decimal(10,2) NOT NULL,
+  `width_inches` decimal(6,2) NOT NULL,
+  `gsm` int(11) NOT NULL,
+  `qc_status` enum('inspection_pending','passed','partially_passed','rejected','quarantined') NOT NULL DEFAULT 'inspection_pending',
+  `remarks` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `inward_no` (`inward_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `machine_loading_sheets`
+--
+
+DROP TABLE IF EXISTS `machine_loading_sheets`;
+
+CREATE TABLE `machine_loading_sheets` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` bigint(20) unsigned NOT NULL DEFAULT 1,
+  `loading_no` varchar(64) NOT NULL,
+  `dye_batch_id` bigint(20) unsigned NOT NULL,
+  `batch_no` varchar(64) NOT NULL,
+  `machine_id` bigint(20) unsigned NOT NULL,
+  `operator_name` varchar(100) NOT NULL,
+  `supervisor_name` varchar(100) NOT NULL,
+  `cleaning_verified` tinyint(1) NOT NULL DEFAULT 1,
+  `safety_checked` tinyint(1) NOT NULL DEFAULT 1,
+  `planned_weight_kg` decimal(10,2) NOT NULL,
+  `actual_loaded_kg` decimal(10,2) NOT NULL,
+  `rolls_count` int(11) NOT NULL,
+  `loading_start` datetime NOT NULL,
+  `loading_finish` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `loading_no` (`loading_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dump completed on 2026-10-27 11:47:41

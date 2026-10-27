@@ -1057,3 +1057,82 @@ i[data-lucide] {
     padding-left: 0 !important;
   }
 }
+
+/* -------------------------------------------------------------
+ * Clean Printing Rules for ERP Registers & Reports
+ * ------------------------------------------------------------- */
+@media print {
+  @page {
+    size: auto;
+    margin: 12mm 10mm;
+  }
+  
+  .cz-sidebar,
+  .cz-header,
+  .cz-footer,
+  .btn,
+  .breadcrumb,
+  .modal,
+  .alert,
+  .cz-stat-card,
+  nav,
+  .cz-doc-head a,
+  .btn-group,
+  button {
+    display: none !important;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 11px !important;
+  }
+
+  .cz-app,
+  .cz-main,
+  .cz-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    background: transparent !important;
+  }
+
+  .cz-panel {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .cz-panel-head {
+    border-bottom: 2px solid #000000 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 10.5px !important;
+  }
+
+  .table th,
+  .table td {
+    border: 1px solid #D1D5DB !important;
+    padding: 5px 8px !important;
+    background: transparent !important;
+    color: #000000 !important;
+  }
+
+  .table thead th {
+    background-color: #F3F4F6 !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #374151 !important;
+  }
+
+  .badge {
+    border: 1px solid #9CA3AF !important;
+    color: #000000 !important;
+    background: transparent !important;
+  }
+}

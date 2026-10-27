@@ -106,50 +106,50 @@ class Router {
 
         // 10. Garments Manufacturing
         self::get('/garments', ['view' => 'modules/garments/views/index.php', 'title' => 'Garments & Apparel Manufacturing', 'module' => 'garments']);
-        self::get('/garments/styles', ['view' => 'modules/garments/views/styles.php', 'title' => 'Style Master & SAM', 'module' => 'garments']);
-        self::get('/garments/cutting', ['view' => 'modules/garments/views/cutting.php', 'title' => 'Cutting Docket & Marker Planning', 'module' => 'garments']);
-        self::get('/garments/bundles', ['view' => 'modules/garments/views/bundles.php', 'title' => 'Bundle Tracking & QR Codes', 'module' => 'garments']);
-        self::get('/garments/sewing', ['view' => 'modules/garments/views/sewing.php', 'title' => 'Sewing Lines & Hourly Output', 'module' => 'garments']);
-        self::get('/garments/packing', ['view' => 'modules/garments/views/packing.php', 'title' => 'Finishing, Packing & Cartons', 'module' => 'garments']);
+        self::get('/garments/styles', ['view' => 'modules/garments/views/index.php', 'title' => 'Style Master & SAM', 'module' => 'garments']);
+        self::get('/garments/cutting', ['view' => 'modules/garments/views/index.php', 'title' => 'Cutting Docket & Marker Planning', 'module' => 'garments']);
+        self::get('/garments/bundles', ['view' => 'modules/garments/views/index.php', 'title' => 'Bundle Tracking & QR Codes', 'module' => 'garments']);
+        self::get('/garments/sewing', ['view' => 'modules/garments/views/index.php', 'title' => 'Sewing Lines & Hourly Output', 'module' => 'garments']);
+        self::get('/garments/packing', ['view' => 'modules/garments/views/index.php', 'title' => 'Finishing, Packing & Cartons', 'module' => 'garments']);
 
         // 11. Quality Assurance
         self::get('/quality', ['view' => 'modules/quality/views/index.php', 'title' => 'Quality & Testing Lab', 'module' => 'quality']);
-        self::get('/quality/inspections', ['view' => 'modules/quality/views/inspections.php', 'title' => 'Quality Inspections', 'module' => 'quality']);
-        self::get('/quality/ncr', ['view' => 'modules/quality/views/ncr.php', 'title' => 'Non-Conformance Reports (NCR)', 'module' => 'quality']);
-        self::get('/quality/lab-tests', ['view' => 'modules/quality/views/lab-tests.php', 'title' => 'Fastness & Shrinkage Test Lab', 'module' => 'quality']);
+        self::get('/quality/inspections', ['view' => 'modules/quality/views/index.php', 'title' => 'Quality Inspections', 'module' => 'quality']);
+        self::get('/quality/ncr', ['view' => 'modules/quality/views/index.php', 'title' => 'Non-Conformance Reports (NCR)', 'module' => 'quality']);
+        self::get('/quality/lab-tests', ['view' => 'modules/quality/views/index.php', 'title' => 'Fastness & Shrinkage Test Lab', 'module' => 'quality']);
 
         // 12. Job-Work & Subcontract
         self::get('/jobwork', ['view' => 'modules/jobwork/views/index.php', 'title' => 'Job-Work & Subcontracting', 'module' => 'jobwork']);
-        self::get('/jobwork/outward', ['view' => 'modules/jobwork/views/outward-challans.php', 'title' => 'Outward Jobwork Challans', 'module' => 'jobwork']);
-        self::get('/jobwork/inward', ['view' => 'modules/jobwork/views/inward-receipts.php', 'title' => 'Jobwork Receipts', 'module' => 'jobwork']);
-        self::get('/jobwork/customer-stock', ['view' => 'modules/jobwork/views/customer-stock.php', 'title' => 'Customer Material Stock', 'module' => 'jobwork']);
-        self::get('/jobwork/reconciliation', ['view' => 'modules/jobwork/views/reconciliation.php', 'title' => 'Jobwork Material Reconciliation', 'module' => 'jobwork']);
+        self::get('/jobwork/outward', ['view' => 'modules/jobwork/views/index.php', 'title' => 'Outward Jobwork Challans', 'module' => 'jobwork']);
+        self::get('/jobwork/inward', ['view' => 'modules/jobwork/views/index.php', 'title' => 'Jobwork Receipts', 'module' => 'jobwork']);
+        self::get('/jobwork/customer-stock', ['view' => 'modules/jobwork/views/index.php', 'title' => 'Customer Material Stock', 'module' => 'jobwork']);
+        self::get('/jobwork/reconciliation', ['view' => 'modules/jobwork/views/index.php', 'title' => 'Jobwork Material Reconciliation', 'module' => 'jobwork']);
 
         // 13. Gate & Logistics
         self::get('/gate', ['view' => 'modules/gate/views/index.php', 'title' => 'Gate, Logistics & Weighbridge', 'module' => 'gate']);
-        self::get('/gate/passes', ['view' => 'modules/gate/views/gate-passes.php', 'title' => 'Gate Pass (Returnable & Outward)', 'module' => 'gate']);
-        self::get('/gate/weighbridge', ['view' => 'modules/gate/views/weighbridge.php', 'title' => 'Weighbridge Slips', 'module' => 'gate']);
+        self::get('/gate/passes', ['view' => 'modules/gate/views/index.php', 'title' => 'Gate Pass (Returnable & Outward)', 'module' => 'gate']);
+        self::get('/gate/weighbridge', ['view' => 'modules/gate/views/index.php', 'title' => 'Weighbridge Slips', 'module' => 'gate']);
 
         // 14. Compliance & ETP (Tamil Nadu / ZLD)
-        self::get('/compliance', ['view' => 'modules/compliance/views/index.php', 'title' => 'Compliance, ETP & Zero Liquid Discharge', 'module' => 'compliance']);
+        self::get('/compliance', ['view' => 'modules/compliance/views/etp-zld-log.php', 'title' => 'Compliance, ETP & Zero Liquid Discharge', 'module' => 'compliance']);
         self::get('/compliance/etp-log', ['view' => 'modules/compliance/views/etp-zld-log.php', 'title' => 'TNPCB ETP / ZLD Daily Logs', 'module' => 'compliance']);
-        self::get('/compliance/boiler', ['view' => 'modules/compliance/views/boiler-log.php', 'title' => 'Boiler & Steam Logs', 'module' => 'compliance']);
-        self::get('/compliance/licences', ['view' => 'modules/compliance/views/licences.php', 'title' => 'Statutory Licences & CTO', 'module' => 'compliance']);
+        self::get('/compliance/boiler', ['view' => 'modules/compliance/views/etp-zld-log.php', 'title' => 'Boiler & Steam Logs', 'module' => 'compliance']);
+        self::get('/compliance/licences', ['view' => 'modules/compliance/views/etp-zld-log.php', 'title' => 'Statutory Licences & CTO', 'module' => 'compliance']);
 
         // 15. HR & Production Wages
         self::get('/hr', ['view' => 'modules/hr/views/index.php', 'title' => 'Human Resources & Production Wages', 'module' => 'hr']);
-        self::get('/hr/employees', ['view' => 'modules/hr/views/employees.php', 'title' => 'Employee Directory', 'module' => 'hr']);
-        self::get('/hr/attendance', ['view' => 'modules/hr/views/attendance.php', 'title' => 'Attendance & Shifts', 'module' => 'hr']);
-        self::get('/hr/wages', ['view' => 'modules/hr/views/production-wages.php', 'title' => 'Piece-Rate & Operator Wages', 'module' => 'hr']);
+        self::get('/hr/employees', ['view' => 'modules/hr/views/index.php', 'title' => 'Employee Directory', 'module' => 'hr']);
+        self::get('/hr/attendance', ['view' => 'modules/hr/views/index.php', 'title' => 'Attendance & Shifts', 'module' => 'hr']);
+        self::get('/hr/wages', ['view' => 'modules/hr/views/index.php', 'title' => 'Piece-Rate & Operator Wages', 'module' => 'hr']);
 
         // 16. Billing, Accounts & Financial Statements
         self::get('/accounts', ['view' => 'modules/accounts/views/index.php', 'title' => 'Billing & Financial Accounts', 'module' => 'accounts']);
         self::get('/accounts/invoices', ['view' => 'modules/accounts/views/invoices.php', 'title' => 'GST Tax Invoices & E-Way Bills', 'module' => 'accounts']);
-        self::get('/accounts/receipts', ['view' => 'modules/accounts/views/receipts.php', 'title' => 'Customer Receipts & Collections', 'module' => 'accounts']);
-        self::get('/accounts/bills', ['view' => 'modules/accounts/views/supplier-bills.php', 'title' => 'Supplier Bills & Payables', 'module' => 'accounts']);
-        self::get('/accounts/payments', ['view' => 'modules/accounts/views/payments.php', 'title' => 'Supplier Payments', 'module' => 'accounts']);
-        self::get('/accounts/journals', ['view' => 'modules/accounts/views/journals.php', 'title' => 'Journal Entries', 'module' => 'accounts']);
-        self::get('/accounts/daybook', ['view' => 'modules/accounts/views/daybook.php', 'title' => 'Day Book & Cash/Bank Book', 'module' => 'accounts']);
+        self::get('/accounts/receipts', ['view' => 'modules/accounts/views/invoices.php', 'title' => 'Customer Receipts & Collections', 'module' => 'accounts']);
+        self::get('/accounts/bills', ['view' => 'modules/accounts/views/invoices.php', 'title' => 'Supplier Bills & Payables', 'module' => 'accounts']);
+        self::get('/accounts/payments', ['view' => 'modules/accounts/views/invoices.php', 'title' => 'Supplier Payments', 'module' => 'accounts']);
+        self::get('/accounts/journals', ['view' => 'modules/accounts/views/invoices.php', 'title' => 'Journal Entries', 'module' => 'accounts']);
+        self::get('/accounts/daybook', ['view' => 'modules/accounts/views/invoices.php', 'title' => 'Day Book & Cash/Bank Book', 'module' => 'accounts']);
         self::get('/accounts/trial-balance', ['view' => 'modules/accounts/views/trial-balance.php', 'title' => 'Trial Balance & Financials', 'module' => 'accounts']);
 
         // 17. Reports & Analytics (Dyeing Reports)
@@ -189,6 +189,26 @@ class Router {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         if ($method === 'HEAD') {
             $method = 'GET';
+        }
+
+        // Enforce Authentication for protected routes
+        $publicPaths = ['/login', '/logout', '/api/v1/auth/login'];
+        $cleanPath = '/' . trim(str_starts_with($path, '/dyeing') ? substr($path, 7) : $path, '/');
+        if (!in_array($path, $publicPaths, true) && !in_array($cleanPath, $publicPaths, true) && $path !== '/') {
+            if (!SessionManager::isAuthenticated()) {
+                if (str_starts_with($path, '/api/')) {
+                    header('Content-Type: application/json; charset=UTF-8');
+                    http_response_code(401);
+                    echo json_encode([
+                        'success' => false,
+                        'error'   => ['code' => 'UNAUTHORIZED', 'message' => 'Authentication required. Please sign in.'],
+                        'meta'    => ['request_id' => bin2hex(random_bytes(8))]
+                    ]);
+                    return;
+                }
+                header('Location: ' . Url::to('/login'));
+                exit;
+            }
         }
 
         // Check if route exists

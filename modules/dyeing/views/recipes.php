@@ -6,9 +6,75 @@
 
 use Core\Database\Database;
 use Core\Support\Url;
+use Core\Security\CSRF;
 
 $pageTitle = 'Dye Recipes & Formulations';
 $activeModule = 'recipes';
+
+// Handle Save New Recipe
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_recipe') {
+    CSRF::validateToken($_POST['csrf_token'] ?? '');
+
+    $recipeCode = trim($_POST['recipe_code'] ?? '');
+    $shadeName = trim($_POST['shade_name'] ?? '');
+    $comp = trim($_POST['fabric_composition'] ?? '100% Cotton Single Jersey');
+    $lr = trim($_POST['liquor_ratio'] ?? '1:5');
+    $dyeClass = $_POST['dye_class'] ?? 'reactive';
+    $chemId = (int)($_POST['chemical_product_id'] ?? 5);
+    $owf = (float)($_POST['dosage_owf'] ?? 2.80);
+
+    if (!empty($recipeCode) && !empty($shadeName)) {
+        Database::beginTransaction();
+        try {
+            $recipeId = Database::insert('dye_recipes', [
+                'company_id'         => 1,
+                'recipe_code'        => $recipeCode,
+                'shade_name'         => $shadeName,
+                'fabric_composition' => $comp,
+                'liquor_ratio'       => $lr,
+                'dye_class'          => $dyeClass,
+                'revision_no'        => 1,
+                'is_approved'        => 1,
+                'approved_by'        => 1
+            ]);
+
+            // Insert Primary Dye Component
+            Database::insert('dye_recipe_items', [
+                'dye_recipe_id'          => $recipeId,
+                'chemical_product_id'    => $chemId,
+                'item_type'              => 'dye',
+                'dosage_percentage'      => $owf,
+                'dosage_grams_per_litre' => null,
+                'process_stage'          => 'dyeing'
+            ]);
+
+            // Add standard auxiliaries (Glauber salt & Soda ash)
+            Database::insert('dye_recipe_items', [
+                'dye_recipe_id'          => $recipeId,
+                'chemical_product_id'    => 6, // Glauber Salt
+                'item_type'              => 'auxiliary',
+                'dosage_percentage'      => null,
+                'dosage_grams_per_litre' => 40.00,
+                'process_stage'          => 'dyeing'
+            ]);
+            Database::insert('dye_recipe_items', [
+                'dye_recipe_id'          => $recipeId,
+                'chemical_product_id'    => 7, // Soda Ash
+                'item_type'              => 'chemical',
+                'dosage_percentage'      => null,
+                'dosage_grams_per_litre' => 15.00,
+                'process_stage'          => 'dyeing'
+            ]);
+
+            Database::commit();
+            header('Location: ' . Url::to('/dyeing/recipes?success=1'));
+            exit;
+        } catch (\Throwable $e) {
+            Database::rollBack();
+            $errorMsg = $e->getMessage();
+        }
+    }
+}
 
 require_once dirname(__DIR__, 3) . '/includes/header.php';
 require_once dirname(__DIR__, 3) . '/includes/sidebar.php';
@@ -110,28 +176,30 @@ $chemicals = Database::fetchAll("SELECT id, name, sku FROM products WHERE catego
         <h5 class="modal-title fs-6 fw-bold" id="newRecipeModalLabel"><i class="bi bi-journal-plus me-2"></i>New Recipe Formulation</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="recipeForm" onsubmit="createRecipe(event)">
+      <form method="POST" action="">
+        <?= CSRF::getField() ?>
+        <input type="hidden" name="action" value="save_recipe">
         <div class="modal-body p-4">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label small fw-bold">Recipe Code <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="rec_code" placeholder="e.g. REC-NAVY-03" required>
+              <input type="text" class="form-control" name="recipe_code" placeholder="e.g. REC-NAVY-03" required>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Shade Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="rec_shade" placeholder="e.g. Navy Blue Dark" required>
+              <input type="text" class="form-control" name="shade_name" placeholder="e.g. Navy Blue Dark" required>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Fabric Composition</label>
-              <input type="text" class="form-control" id="rec_comp" value="100% Cotton Single Jersey">
+              <input type="text" class="form-control" name="fabric_composition" value="100% Cotton Single Jersey">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Liquor Ratio</label>
-              <input type="text" class="form-control" id="rec_lr" value="1:5">
+              <input type="text" class="form-control" name="liquor_ratio" value="1:5">
             </div>
             <div class="col-12">
               <label class="form-label small fw-bold">Primary Reactive Dye Component <span class="text-danger">*</span></label>
-              <select class="form-select" id="rec_chem_id" required>
+              <select class="form-select" name="chemical_product_id" required>
                 <?php foreach ($chemicals as $c): ?>
                   <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
                 <?php endforeach; ?>
@@ -139,11 +207,11 @@ $chemicals = Database::fetchAll("SELECT id, name, sku FROM products WHERE catego
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Dosage (% OWF) <span class="text-danger">*</span></label>
-              <input type="number" step="0.01" class="form-control" id="rec_owf" value="2.80" required>
+              <input type="number" step="0.01" class="form-control" name="dosage_owf" value="2.80" required>
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Dye Class</label>
-              <select class="form-select" id="rec_class">
+              <select class="form-select" name="dye_class">
                 <option value="reactive">Reactive (Cotton Knits)</option>
                 <option value="disperse">Disperse (Polyester)</option>
                 <option value="vat">Vat (Yarn Dyeing)</option>
@@ -159,13 +227,5 @@ $chemicals = Database::fetchAll("SELECT id, name, sku FROM products WHERE catego
     </div>
   </div>
 </div>
-
-<script>
-  function createRecipe(e) {
-    e.preventDefault();
-    window.showToast('Recipe Saved', 'New dye recipe formulation created successfully.', true);
-    setTimeout(() => location.reload(), 600);
-  }
-</script>
 <?php
 require_once dirname(__DIR__, 3) . '/includes/footer.php';

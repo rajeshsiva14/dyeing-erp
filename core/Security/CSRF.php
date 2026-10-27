@@ -17,4 +17,19 @@ class CSRF {
         }
         return hash_equals($_SESSION['_csrf_token'], $token);
     }
+
+    /**
+     * Validate token alias used across dyeing forms
+     */
+    public static function validateToken(?string $token): bool {
+        return self::validate($token);
+    }
+
+    /**
+     * Generate HTML hidden input field for forms
+     */
+    public static function getField(): string {
+        $token = htmlspecialchars(self::getToken(), ENT_QUOTES, 'UTF-8');
+        return '<input type="hidden" name="csrf_token" value="' . $token . '">';
+    }
 }

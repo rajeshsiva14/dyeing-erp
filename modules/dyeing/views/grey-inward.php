@@ -38,9 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $widthInches = (float)($_POST['width_inches'] ?? 48);
     $gsm = (int)($_POST['gsm'] ?? 160);
     $remarks = trim($_POST['remarks'] ?? '');
+    $companyId = (int)(\Core\Security\SessionManager::getUser()['company_id'] ?? 1);
 
     Database::insert('grey_fabric_inwards', [
-        'company_id'          => 1,
+        'company_id'          => $companyId,
         'inward_no'           => $inwardNo,
         'inward_date'         => date('Y-m-d H:i:s'),
         'source_type'         => $sourceType,
@@ -269,6 +270,12 @@ $pendingQc = (int)Database::fetch("SELECT COUNT(*) as c FROM grey_fabric_inwards
           <p class="text-secondary small mb-0">Record incoming rolls from Knitting / Weaving / Subcontractors with tare weighment and lot verification.</p>
         </div>
         <div class="d-flex gap-2">
+          <button type="button" onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-printer me-1"></i> Print Register
+          </button>
+          <button type="button" onclick="exportTableToCSV('greyInwardTable', 'grey_fabric_inward_register.csv')" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Excel/CSV
+          </button>
           <a href="<?= Url::to('/dyeing/grey-inward?action=new') ?>" class="btn btn-dark btn-sm">
             <i class="bi bi-plus-circle me-1"></i> New Grey Inward
           </a>
@@ -321,7 +328,7 @@ $pendingQc = (int)Database::fetch("SELECT COUNT(*) as c FROM grey_fabric_inwards
           <span class="small text-secondary"><?= count($inwards) ?> Inward Receipts</span>
         </div>
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0 small">
+          <table id="greyInwardTable" class="table table-hover align-middle mb-0 small">
             <thead>
               <tr>
                 <th>Inward No</th>
